@@ -9,6 +9,10 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { ThemeContext } from "@/context/ThemeContext";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 
 
 export default function TabLayout() {
@@ -20,6 +24,7 @@ export default function TabLayout() {
   return (
     <ThemeProvider>
       <Tabs
+        initialRouteName='index'
         screenOptions={{
           tabBarActiveTintColor: theme.tabIconSelected,
           headerShown: false,
@@ -34,24 +39,24 @@ export default function TabLayout() {
           }),
         }}>
         <Tabs.Screen
-          name="index"
+          name="weight"
           options={{
-            title: 'Home',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            title: 'Weight',
+            tabBarIcon: ({ color }) => <FontAwesome5 name="weight" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
-          name="workout"
+          name="index"
           options={{
             title: 'Workout',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            tabBarIcon: ({ color }) => <Ionicons name="barbell-outline" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
           name="explore"
           options={{
-            title: 'Explore',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            title: 'Food',
+            tabBarIcon: ({ color }) => <MaterialCommunityIcons name="food-apple" size={24} color={color} />,
           }}
         />
       </Tabs>

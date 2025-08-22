@@ -1,74 +1,50 @@
-import { ThemeProvider } from '@/context/ThemeContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ThemeContext } from "@/context/ThemeContext";
-import { React, useState, useContext, useEffect} from 'react'
 import { Text, View, TextInput, Pressable, StyleSheet, FlatList } from 'react-native'
-// import { Image } from 'expo-image';
-// import { HelloWave } from '@/components/HelloWave';
-// import ParallaxScrollView from '@/components/ParallaxScrollView';
-// import { ThemedText } from '@/components/ThemedText';
-// import { ThemedView } from '@/components/ThemedView';
+import { React, useState, useContext, useEffect} from 'react'
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ThemeContext } from "@/context/ThemeContext";
+import Animated from 'react-native-reanimated'
 
+export default function Workout() {
+    const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
+    const styles = createStyles(theme, colorScheme)
 
+    const dummyData = [
+      {
+        id: '1',
+        name: 'squat'
+      },
+      {
+        id: '2',
+        name: 'bench'
+      },
+      {
+        id: '3',
+        name: 'deadlift'
+      }
+    ]
 
+    const renderListItem = ({ item }) => (
+      <View style={styles.workoutItem}>
+        <Text style={styles.workoutText}>{item.name}</Text>
+      </View>
+    )
 
-export default function HomeScreen() {
-  const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
-  const styles = createStyles(theme, colorScheme)
+    return (
+        <SafeAreaView style={styles.container}>
+            <View>
+                <Pressable
+                  style={styles.button}>
+                <Text style={styles.buttonText}>Start Workout</Text>    
+                </Pressable>
+            </View>
+            <Animated.FlatList
+              data={dummyData}
+              renderItem={renderListItem}
+              keyExtractor={data => data.id} />
 
-  return (
-
-      <SafeAreaView style={styles.container}>
-        <View>
-          <Text style={styles.text}>weight</Text>
-        </View>
-      </SafeAreaView>
-
-    // <ParallaxScrollView
-    //   headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    //   headerImage={
-    //     <Image
-    //       source={require('@/assets/images/partial-react-logo.png')}
-    //       style={styles.reactLogo}
-    //     />
-    //   }>
-    //   <ThemedView style={styles.titleContainer}>
-    //     <ThemedText type="title">Welcome hi!</ThemedText>
-    //     <HelloWave />
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-    //     <ThemedText>
-    //       Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-    //       Press{' '}
-    //       <ThemedText type="defaultSemiBold">
-    //         {Platform.select({
-    //           ios: 'cmd + d',
-    //           android: 'cmd + m',
-    //           web: 'F12',
-    //         })}
-    //       </ThemedText>{' '}
-    //       to open developer tools.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-    //     <ThemedText>
-    //       {`Tap the Explore tab to learn more about what's included in this starter app.`}
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       {`When you're ready, run `}
-    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    // </ParallaxScrollView>
-  );
+        </SafeAreaView>
+        
+    )
 }
 
 function createStyles(theme, colorScheme) {
@@ -76,10 +52,45 @@ function createStyles(theme, colorScheme) {
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      color: 'white'
+      flexDirection: 'column'
     },
     text: {
       color: theme.text
+    },
+    button: {
+      marginHorizontal: 'auto',
+      height: 60,
+      width: 250,
+      borderRadius: 20,
+      justifyContent: 'center',
+      backgroundColor: theme.tabIconSelected,
+      padding: 6,
+      marginBottom: 15,
+    },
+    buttonText: {
+      color: 'black',
+      justifyContent: 'center',
+      marginHorizontal: 'auto',
+      fontSize: 28
+    },
+    workoutItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 4,
+      padding: 10,
+      borderBottomColor: 'gray',
+      borderBottomWidth: 1,
+      width: '100%',
+      maxWidth: 1024,
+      marginHorizontal: 'auto',
+      pointerEvents: 'auto',
+    },
+    workoutText: {
+      flex: 1,
+      fontSize: 18,
+      fontFamily: 'Inter_500Medium',
+      color: theme.text,
     }
   })
 }
