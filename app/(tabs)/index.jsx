@@ -1,12 +1,45 @@
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList } from 'react-native'
+import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Alert } from 'react-native'
 import { React, useState, useContext, useEffect} from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
 import Animated from 'react-native-reanimated'
 
+import { useSQLiteContext } from 'expo-sqlite';
+
+
 export default function Workout() {
+    const [workout, setWorkout] = useState({
+      start_time: null,
+      end_time: null
+    });
+
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
+
+    const db = useSQLiteContext();
+
+    const handleSubmit = async () => {
+      try {
+        //validate
+        if (!workout.start_time || !workout.end_time) {
+          throw new Error('missing field')
+        }
+
+        await db.runAsync(
+          'INSERT INTO workouts (start_time, end_time) VALUES (?, ?)',
+          [workout.start_time, workout.end_time]
+        );
+
+        Alert.alert('success', 'workout added');
+        setWorkout({
+          start_time: '',
+          end_time: ''
+        })
+
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     const dummyData = [
       {
@@ -23,6 +56,26 @@ export default function Workout() {
       }
     ]
 
+    const startWorkoutBtn = () => {
+      console.log('start workout btn');
+      const start = new Date(Date.now())
+
+      console.log('start time: ' + new Date(start));
+
+      const end  = new Date(Date.now() + (30 * 60000))
+
+      console.log('end time: ' + new Date(end));
+
+      console.log(workout);
+      
+      
+      console.log({...workout, start_time: start, end_time: end});
+      
+
+      setWorkout({...workout, start_time: start, end_time: end});
+
+    }
+
     const renderListItem = ({ item }) => (
       <View style={styles.workoutItem}>
         <Text style={styles.workoutText}>{item.name}</Text>
@@ -33,9 +86,11 @@ export default function Workout() {
         <SafeAreaView style={styles.container}>
             <View>
                 <Pressable
-                  style={styles.button}>
-                <Text style={styles.buttonText}>Start Workout</Text>    
+                  style={styles.button}
+                  onPress={startWorkoutBtn}>
+                  <Text style={styles.buttonText}>Start Workout</Text>    
                 </Pressable>
+                <Text>{workout.start_time != null ? workout.start_time.getTime() : ''}</Text>
             </View>
             <Animated.FlatList
               data={dummyData}
@@ -66,6 +121,7 @@ function createStyles(theme, colorScheme) {
       backgroundColor: theme.tabIconSelected,
       padding: 6,
       marginBottom: 15,
+      marginTop: 15
     },
     buttonText: {
       color: 'black',
