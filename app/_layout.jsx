@@ -6,7 +6,7 @@ import { ThemeProvider } from "../context/ThemeContext";
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SQLiteProvider } from 'expo-sqlite'
+import { SQLiteDatabase, SQLiteProvider, useSQLiteContext } from 'expo-sqlite'
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -19,31 +19,24 @@ export default function RootLayout() {
     return null;
   }
 
-  return (
-    <SQLiteProvider
-      databaseName='userDatabase.db'
-      onInit={async (db) => {
-        await db.execAsync(`
-          CREATE TABLE IF NOT EXISTS workouts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            start_time DATETIME NOT NULL,
-            end_time DATETIME NOT NULL
-          );
-          PRAGMA journal_mode=WAL;
-          `);
+  const createDbIfNeeded = async (db) => {
+    console.log('creating database if working');
+    
+    await db.execAsync("CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)")
+  }
 
-      }}
-      options={{useNewConnection: false}}
-      >
+  return (
+   
       <ThemeProvider>
         <SafeAreaProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <SQLiteProvider databaseName="test.db" onInit={createDbIfNeeded}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </SQLiteProvider>
           <StatusBar style="auto" />
         </SafeAreaProvider>    
       </ThemeProvider>
-    </SQLiteProvider>
   );
 }

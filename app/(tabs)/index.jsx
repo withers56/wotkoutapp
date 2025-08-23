@@ -1,13 +1,17 @@
 import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Alert } from 'react-native'
-import { React, useState, useContext, useEffect} from 'react'
+import { React, useState, useContext, useEffect, useCallback} from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
 import Animated from 'react-native-reanimated'
 
 import { useSQLiteContext } from 'expo-sqlite';
+import { useFocusEffect } from 'expo-router';
 
 
 export default function Workout() {
+    const [workoutHistory, setWorkoutHistory] = useState([]);
+    const [name, setName] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [workout, setWorkout] = useState({
       start_time: null,
       end_time: null
@@ -18,27 +22,57 @@ export default function Workout() {
 
     const db = useSQLiteContext();
 
-    const handleSubmit = async () => {
-      try {
-        //validate
-        if (!workout.start_time || !workout.end_time) {
-          throw new Error('missing field')
-        }
+    const loadHistory = async () => {
+      const result = await db.getAllAsync("SELECT * FROM workouts");
+      console.log(result.rows);
+      
+      // setWorkoutHistory(result.rows);
+    }
 
-        await db.runAsync(
-          'INSERT INTO workouts (start_time, end_time) VALUES (?, ?)',
-          [workout.start_time, workout.end_time]
+    useFocusEffect(
+      useCallback(() => {
+        loadHistory();
+      }, [])
+    )
+    
+    
+
+    const handleSubmit = async (newWorkout) => {
+      // try {
+      //   //validate
+      //   if (newWorkout.start_time === null || newWorkout.end_time === null) {
+      //     throw new Error('missing field')
+      //   }
+
+      //   await db.runAsync(
+      //     'INSERT INTO workouts (start_time, end_time) VALUES (?, ?)',
+      //     [newWorkout.start_time, newWorkout.end_time]
+      //   );
+
+      //   Alert.alert('success', 'workout added');
+      //   setWorkout({
+      //     start_time: null,
+      //     end_time: null
+      //   })
+
+      // } catch (e) {
+      //   console.error(e);
+      // }
+
+      try {
+        db.runAsync(
+          "INSERT INTO workouts (name) VALUES (?)",
+          ['test']
         );
 
-        Alert.alert('success', 'workout added');
-        setWorkout({
-          start_time: '',
-          end_time: ''
-        })
-
+        console.log('past run async');
       } catch (e) {
         console.error(e);
+        
       }
+
+      
+        
     }
 
     const dummyData = [
@@ -67,12 +101,19 @@ export default function Workout() {
       console.log('end time: ' + new Date(end));
 
       console.log(workout);
+
+      const mockWorkout = {
+        start_time: start,
+        end_time: end
+      }
       
       
       console.log({...workout, start_time: start, end_time: end});
       
 
       setWorkout({...workout, start_time: start, end_time: end});
+
+      // handleSubmit(mockWorkout);
 
     }
 
@@ -87,7 +128,7 @@ export default function Workout() {
             <View>
                 <Pressable
                   style={styles.button}
-                  onPress={startWorkoutBtn}>
+                  onPress={handleSubmit}>
                   <Text style={styles.buttonText}>Start Workout</Text>    
                 </Pressable>
                 <Text>{workout.start_time != null ? workout.start_time.getTime() : ''}</Text>
