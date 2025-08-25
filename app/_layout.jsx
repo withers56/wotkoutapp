@@ -22,14 +22,15 @@ export default function RootLayout() {
   const createDbIfNeeded = async (db) => {
     console.log('creating database if working');
     
-    await db.execAsync("CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)")
+    await db.execAsync(`PRAGMA journal_mode = WAL;
+      CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, start_time TEXT, end_time TEXT);`)
   }
 
   return (
    
       <ThemeProvider>
         <SafeAreaProvider>
-          <SQLiteProvider databaseName="test.db" onInit={createDbIfNeeded}>
+          <SQLiteProvider databaseName="testnew.db" onInit={createDbIfNeeded}>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />

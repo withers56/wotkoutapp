@@ -23,10 +23,10 @@ export default function Workout() {
     const db = useSQLiteContext();
 
     const loadHistory = async () => {
-      const result = await db.getAllAsync("SELECT * FROM workouts");
-      console.log(result.rows);
+      const result = await db.getAllAsync("SELECT * FROM workouts ORDER BY id DESC");
+      console.log(result);
       
-      // setWorkoutHistory(result.rows);
+      setWorkoutHistory(result);
     }
 
     useFocusEffect(
@@ -38,34 +38,37 @@ export default function Workout() {
     
 
     const handleSubmit = async (newWorkout) => {
-      // try {
-      //   //validate
-      //   if (newWorkout.start_time === null || newWorkout.end_time === null) {
-      //     throw new Error('missing field')
-      //   }
 
-      //   await db.runAsync(
-      //     'INSERT INTO workouts (start_time, end_time) VALUES (?, ?)',
-      //     [newWorkout.start_time, newWorkout.end_time]
-      //   );
 
-      //   Alert.alert('success', 'workout added');
-      //   setWorkout({
-      //     start_time: null,
-      //     end_time: null
-      //   })
+      const start = new Date(Date.now()).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
 
-      // } catch (e) {
-      //   console.error(e);
-      // }
+      // console.log('start time: ' + new Date(start));
+
+      const end  = new Date(Date.now() + (30 * 60000)).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
+
+
 
       try {
         db.runAsync(
-          "INSERT INTO workouts (name) VALUES (?)",
-          ['test']
+          "INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
+          ['test v2', start, end]
         );
 
         console.log('past run async');
+
+        loadHistory()
       } catch (e) {
         console.error(e);
         
@@ -73,6 +76,15 @@ export default function Workout() {
 
       
         
+    }
+
+    const handleDelete = async (id) => {
+      try {
+        await db.runAsync("DELETE FROM workouts WHERE id = ?;", [id]);
+        loadHistory()
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     const dummyData = [
@@ -99,7 +111,6 @@ export default function Workout() {
       const end  = new Date(Date.now() + (30 * 60000))
 
       console.log('end time: ' + new Date(end));
-
       console.log(workout);
 
       const mockWorkout = {
@@ -119,7 +130,18 @@ export default function Workout() {
 
     const renderListItem = ({ item }) => (
       <View style={styles.workoutItem}>
-        <Text style={styles.workoutText}>{item.name}</Text>
+        {/* <Text style={styles.workoutText}>{item.name}</Text> */}
+        <View>
+          <Text style={styles.workoutText}>{item.start_time}</Text>
+          {/* <Text style={styles.workoutText}>{item.end_time}</Text> */}
+        </View>
+        <View>
+          <Pressable 
+            style={styles.button}
+            onPress={() => {handleDelete(item.id)}}>
+            <Text>Delete</Text>
+          </Pressable>  
+        </View>
       </View>
     )
 
@@ -127,14 +149,14 @@ export default function Workout() {
         <SafeAreaView style={styles.container}>
             <View>
                 <Pressable
-                  style={styles.button}
+                  style={styles.startButton}
                   onPress={handleSubmit}>
                   <Text style={styles.buttonText}>Start Workout</Text>    
                 </Pressable>
                 <Text>{workout.start_time != null ? workout.start_time.getTime() : ''}</Text>
             </View>
             <Animated.FlatList
-              data={dummyData}
+              data={workoutHistory}
               renderItem={renderListItem}
               keyExtractor={data => data.id} />
 
@@ -153,7 +175,7 @@ function createStyles(theme, colorScheme) {
     text: {
       color: theme.text
     },
-    button: {
+    startButton: {
       marginHorizontal: 'auto',
       height: 60,
       width: 250,
@@ -164,6 +186,11 @@ function createStyles(theme, colorScheme) {
       marginBottom: 15,
       marginTop: 15
     },
+    button: {
+      backgroundColor: theme.tabIconSelected,
+      borderRadius: 20,
+      padding: 6,
+    },
     buttonText: {
       color: 'black',
       justifyContent: 'center',
@@ -172,9 +199,9 @@ function createStyles(theme, colorScheme) {
     },
     workoutItem: {
       flexDirection: 'row',
-      alignItems: 'center',
+      // alignItems: 'center',
       justifyContent: 'space-between',
-      gap: 4,
+      // gap: 4,
       padding: 10,
       borderBottomColor: 'gray',
       borderBottomWidth: 1,
@@ -184,7 +211,7 @@ function createStyles(theme, colorScheme) {
       pointerEvents: 'auto',
     },
     workoutText: {
-      flex: 1,
+      // flex: 1,
       fontSize: 18,
       fontFamily: 'Inter_500Medium',
       color: theme.text,
