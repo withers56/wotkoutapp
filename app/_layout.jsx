@@ -3,10 +3,11 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { ThemeProvider } from "../context/ThemeContext";
+import dbInit from '../db/dbstatments';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { SQLiteProvider } from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SQLiteDatabase, SQLiteProvider, useSQLiteContext } from 'expo-sqlite'
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -22,8 +23,7 @@ export default function RootLayout() {
   const createDbIfNeeded = async (db) => {
     console.log('creating database if working');
     
-    await db.execAsync(`PRAGMA journal_mode = WAL;
-      CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, start_time TEXT, end_time TEXT);`)
+    await db.execAsync(dbInit())
   }
 
   return (
