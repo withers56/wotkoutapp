@@ -1,6 +1,6 @@
 import { ThemeContext } from "@/context/ThemeContext";
 import { useContext, useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ThemeText from "../../../context/ThemeText";
 
@@ -25,6 +25,16 @@ const start_workout = () => {
     const [exercises, setExercises] = useState([]);
     const [exerciseList, setExerciseList] = useState([]);
     const [selectedExercise, setSelectedExercise] = useState({});
+
+    const [savedSets, setSavedSets] = useState([]);
+    const [currentSets, setCurrentSets] = useState([]);
+    const [currentSet, setCurrentSet] = useState({
+        exerciseId: '',
+        weight: 0,
+        reps: 0
+    });
+
+    const [count, setCount] = useState(0);
 
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
@@ -70,12 +80,49 @@ const start_workout = () => {
 
         setExercises([...exercises, {id: exercise.id, name: exercise.name}])
 
+        setCurrentSet((prevData) => ({...prevData, exerciseId: exercise.id}))
+
 
         setModalVisible(!modalVisible)
     }
 
+    const handleCompletedSet = () => {
+        console.log(currentSet);
+
+        setCurrentSets([...currentSets, {exerciseId: currentSet.exerciseId, weight: currentSet.weight, reps: currentSet.reps}])
+
+        setCurrentSet({
+            exerciseId: '',
+            weight: 0,
+            reps: 0
+        })
+        
+    } 
+
+    const renderDataRow = ({item}) => (
+        <View style={styles.exerciseData}>
+                    <ThemeText>{currentSets.length + 1}</ThemeText>
+                    <ThemeText>-</ThemeText>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric" 
+                        value={item.weight}
+                        onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
+                        placeholder='0'/>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={item.reps}
+                        onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
+                        placeholder='0'/>
+                    <Pressable
+                        onPress={handleCompletedSet}>
+                        <ThemeText>add</ThemeText>
+                    </Pressable>
+                </View>
+    )
+
     const renderExercise = ({ item }) => (
-        <TouchableOpacity onPress={() => handleExerciseSelection(item)}>
             <View style={styles.exerciseCurrentContainer}>
                 <ThemeText>{item.name}</ThemeText>
                 <View style={styles.exerciseData}>
@@ -85,8 +132,33 @@ const start_workout = () => {
                     <ThemeText>Reps</ThemeText>
                     <ThemeText>^</ThemeText>
                 </View>
+                <Animated.FlatList 
+                    data={currentSets}
+                    renderItem={renderDataRow}
+                    keyExtractor={data => data.id}
+                    />
+
+                <View style={styles.exerciseData}>
+                    <ThemeText>{currentSets.length + 1}</ThemeText>
+                    <ThemeText>-</ThemeText>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric" 
+                        value={currentSet.weight}
+                        onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
+                        placeholder='0'/>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={currentSet.reps}
+                        onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
+                        placeholder='0'/>
+                    <Pressable
+                        onPress={handleCompletedSet}>
+                        <ThemeText>add</ThemeText>
+                    </Pressable>
+                </View>
             </View>
-        </TouchableOpacity>
     )
 
     const renderExerciseList = ({ item }) => (
@@ -184,6 +256,12 @@ function createStyles(theme, colorScheme) {
     text: {
       color: theme.text
     },
+    input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+  },
     headingContainer: {
         padding: 10,
         width: '100%',
