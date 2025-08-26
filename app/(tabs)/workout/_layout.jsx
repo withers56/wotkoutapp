@@ -18,7 +18,11 @@ const StackLayout = () => {
             <Stack.Screen 
                 name="start_workout"
                 options={{
-                    title: 'New Workout',
+                    title: new Date(Date.now()).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'    
+                    }),
                     headerShown: true,
                     headerTintColor: theme.color,
                     headerStyle: {

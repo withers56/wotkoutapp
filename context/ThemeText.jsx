@@ -14,7 +14,8 @@ export default function ThemeText({children}) {
 function createStyles(theme, colorScheme) {
     return StyleSheet.create({
         text: {
-            color: theme.text
+            color: theme.text,
+            fontSize: 18
         }
     })
 }

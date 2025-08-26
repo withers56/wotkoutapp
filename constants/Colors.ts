@@ -11,16 +11,22 @@ export const Colors = {
     text: 'black',
     color: 'black',
     background: 'white',
+    modalBackground: '#dfdfdfff',
     icon: 'black',
     button: 'royalblue',
     tabIconSelected: tintColorLight,
+    danger: 'red',
+    primary: 'rgb(0, 114, 198)'
   },
   dark: {
     text: 'white',
     color: 'white',
     background: '#2c2c2c',
+    modalBackground: '#3e3e3eff',
     icon: 'red',
     button: 'white',
     tabIconSelected: tintColorDark,
+    danger: 'red',
+    primary: 'rgb(0, 114, 198)'
   },
 };
