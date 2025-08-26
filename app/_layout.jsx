@@ -15,6 +15,12 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  const DEFAULT_EXERCISES = [
+    {name: 'Squat'},
+    {name: 'Bench'},
+    {name: 'Deadlift'}
+  ]
+
   if (!loaded) {
     // Async font loading only occurs in development.
     return null;
@@ -31,14 +37,24 @@ export default function RootLayout() {
 
     if(exerciseCheck[0].rowCount < 1) {
       console.log('insert default exercises');
-      
+      // await db.execAsync(exercisesInitInsert());
+        DEFAULT_EXERCISES.forEach(item => {
+          db.runAsync(
+            'INSERT INTO exercises (name) VALUES (?)',
+            item.name
+          );
+
+          console.log(item.name);
+        });    
     } 
 
-    // await db.runAsync('INSERT INTO exercises (name) VALUES (?)', 'test exer');
+
+    // await db.runAsync('DELETE FROM exercises');
 
 
-    console.log(exerciseCheck[0].rowCount);
+    console.log(await db.getAllAsync('SELECT * FROM exercises'));
     
+   
   }
 
   return (

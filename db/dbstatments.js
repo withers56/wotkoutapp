@@ -34,9 +34,10 @@ export default function dbInit() {
       `
 }
 
-export function exercisesInsert() {
+export function exercisesInitInsert() {
     return `
-    
+        INSERT INTO exercises (name) VALUES (?)',
+        ['Squat', 'Bench', 'Deadlift'];
     `
 }
 
