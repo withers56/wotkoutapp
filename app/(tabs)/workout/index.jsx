@@ -4,8 +4,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+
 
 
 export default function Workout() {
@@ -19,6 +20,9 @@ export default function Workout() {
 
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
+
+    const router = useRouter();
+
 
     const db = useSQLiteContext();
 
@@ -63,6 +67,8 @@ export default function Workout() {
 
         console.log('past run async');
         loadHistory()
+
+        router.navigate('/workout/start_workout')
       } catch (e) {
         console.error(e);       
       }

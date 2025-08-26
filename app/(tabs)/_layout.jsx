@@ -1,16 +1,12 @@
 import { Tabs } from 'expo-router';
-import { React, useContext} from 'react';
-import { Platform, Appearance, StyleSheet } from 'react-native';
+import { Appearance, Platform, StyleSheet } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemeProvider } from '@/context/ThemeContext';
-import { ThemeContext } from "@/context/ThemeContext";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 
@@ -24,7 +20,7 @@ export default function TabLayout() {
   return (
     <ThemeProvider>
       <Tabs
-        initialRouteName='index'
+        // initialRouteName='workout'
         screenOptions={{
           tabBarActiveTintColor: theme.tabIconSelected,
           headerShown: false,
@@ -46,14 +42,14 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="index"
+          name="workout"
           options={{
             title: 'Workout',
             tabBarIcon: ({ color }) => <Ionicons name="barbell-outline" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
-          name="explore"
+          name="food"
           options={{
             title: 'Food',
             tabBarIcon: ({ color }) => <MaterialCommunityIcons name="food-apple" size={24} color={color} />,
