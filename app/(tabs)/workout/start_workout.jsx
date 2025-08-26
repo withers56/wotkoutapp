@@ -4,6 +4,7 @@ import { Alert, Modal, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpaci
 import Animated from 'react-native-reanimated';
 import ThemeText from "../../../context/ThemeText";
 
+
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 
@@ -73,7 +74,22 @@ const start_workout = () => {
         setModalVisible(!modalVisible)
     }
 
-    const renderItem = ({ item }) => (
+    const renderExercise = ({ item }) => (
+        <TouchableOpacity onPress={() => handleExerciseSelection(item)}>
+            <View style={styles.exerciseCurrentContainer}>
+                <ThemeText>{item.name}</ThemeText>
+                <View style={styles.exerciseData}>
+                    <ThemeText>Set</ThemeText>
+                    <ThemeText>Previous</ThemeText>
+                    <ThemeText>Lbs</ThemeText>
+                    <ThemeText>Reps</ThemeText>
+                    <ThemeText>^</ThemeText>
+                </View>
+            </View>
+        </TouchableOpacity>
+    )
+
+    const renderExerciseList = ({ item }) => (
         <TouchableOpacity onPress={() => handleExerciseSelection(item)}>
             <View style={styles.exerciseItem}>
                 <ThemeText>{item.name}</ThemeText>
@@ -105,7 +121,7 @@ const start_workout = () => {
         <View style={styles.exerciseContainer}>
             <Animated.FlatList 
                 data={exercises}
-                renderItem={renderItem}
+                renderItem={renderExercise}
                 keyExtractor={data => data.id}/>
 
             <View>
@@ -147,7 +163,7 @@ const start_workout = () => {
 
                     <Animated.FlatList 
                         data={exerciseList}
-                        renderItem={renderItem}
+                        renderItem={renderExerciseList}
                         keyExtractor={data => data.id}/>
                     
                 </View>
@@ -184,6 +200,9 @@ function createStyles(theme, colorScheme) {
     },
     exerciseContainer: {
         height: '77.5%'
+    },
+    exerciseCurrentContainer: {
+        padding: 10
     },
     addButton: {
       marginHorizontal: 'auto',
@@ -225,6 +244,10 @@ function createStyles(theme, colorScheme) {
       maxWidth: 1024,
       marginHorizontal: 'auto',
       pointerEvents: 'auto',
+    },
+    exerciseData: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     },
     centeredView: {
       flex: 1,
