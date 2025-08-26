@@ -23,7 +23,22 @@ export default function RootLayout() {
   const createDbIfNeeded = async (db) => {
     console.log('creating database if working');
     
-    await db.execAsync(dbInit())
+    await db.execAsync(dbInit()) // creates tables if not existing
+
+    //check to see if exercises is empty
+
+    const exerciseCheck = await db.getAllAsync('SELECT COUNT(1) AS rowCount FROM exercises');
+
+    if(exerciseCheck[0].rowCount < 1) {
+      console.log('insert default exercises');
+      
+    } 
+
+    // await db.runAsync('INSERT INTO exercises (name) VALUES (?)', 'test exer');
+
+
+    console.log(exerciseCheck[0].rowCount);
+    
   }
 
   return (
