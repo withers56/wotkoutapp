@@ -1,11 +1,11 @@
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Alert } from 'react-native'
-import { React, useState, useContext, useEffect, useCallback} from 'react'
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
-import Animated from 'react-native-reanimated'
+import { useCallback, useContext, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 
 
 export default function Workout() {
@@ -35,11 +35,8 @@ export default function Workout() {
       }, [])
     )
     
-    
-
     const handleSubmit = async (newWorkout) => {
-
-
+      
       const start = new Date(Date.now()).toLocaleString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -58,8 +55,6 @@ export default function Workout() {
         minute: '2-digit'
     })
 
-
-
       try {
         db.runAsync(
           "INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
@@ -67,15 +62,10 @@ export default function Workout() {
         );
 
         console.log('past run async');
-
         loadHistory()
       } catch (e) {
-        console.error(e);
-        
+        console.error(e);       
       }
-
-      
-        
     }
 
     const handleDelete = async (id) => {

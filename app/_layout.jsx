@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { ThemeProvider } from "../context/ThemeContext";
-import dbInit from '../db/dbstatments';
+import dbInit, { DEFAULT_EXERCISES } from '../db/dbstatments';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { SQLiteProvider } from 'expo-sqlite';
@@ -14,12 +14,6 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-
-  const DEFAULT_EXERCISES = [
-    {name: 'Squat'},
-    {name: 'Bench'},
-    {name: 'Deadlift'}
-  ]
 
   if (!loaded) {
     // Async font loading only occurs in development.
@@ -61,7 +55,7 @@ export default function RootLayout() {
    
       <ThemeProvider>
         <SafeAreaProvider>
-          <SQLiteProvider databaseName="testnew.db" onInit={createDbIfNeeded}>
+          <SQLiteProvider databaseName="testnewv3.db" onInit={createDbIfNeeded}>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
