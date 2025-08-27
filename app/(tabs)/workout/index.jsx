@@ -28,7 +28,29 @@ export default function Workout() {
 
     const loadHistory = async () => {
       const result = await db.getAllAsync("SELECT * FROM workouts ORDER BY id DESC");
-      console.log(result);
+      const sets = await db.getAllAsync("SELECT * FROM sets");
+
+      // const ws = await db.getAllAsync("SELECT * FROM workout_sets");
+
+
+
+      // const test = await db.getAllAsync(
+      //   "SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w INNER JOIN sets AS ws ON w.id = ws.workout_id INNER JOIN sets AS s ON ws.set_id = s.id INNER JOIN exercises AS e ON s.exercise_id = e.id");
+
+      // const test = await db.getAllAsync("SELECT weight, reps FROM sets INNER JOIN workouts on workouts.id = sets.workout_id ORDER BY workouts.id")
+      const test = await db.getAllAsync("SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w LEFT OUTER JOIN sets AS s ON w.id = s.workout_id LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id")
+
+
+      test.sort((a, b) => {
+        return a.id - b.id;
+      });
+      console.log(test);
+
+
+      
+      // console.log(sets);
+
+      
       
       setWorkoutHistory(result);
     }

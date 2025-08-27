@@ -9,6 +9,8 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { SQLiteProvider } from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+export const dbName = 'estnewv5.db';
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -38,7 +40,7 @@ export default function RootLayout() {
             item.name
           );
 
-          console.log(item.name);
+          // console.log(item.name);
         });    
     } 
 
@@ -46,7 +48,7 @@ export default function RootLayout() {
     // await db.runAsync('DELETE FROM exercises');
 
 
-    console.log(await db.getAllAsync('SELECT * FROM exercises'));
+    // console.log(await db.getAllAsync('SELECT * FROM exercises'));
     
    
   }
@@ -55,7 +57,7 @@ export default function RootLayout() {
    
       <ThemeProvider>
         <SafeAreaProvider>
-          <SQLiteProvider databaseName="testnewv3.db" onInit={createDbIfNeeded}>
+          <SQLiteProvider databaseName={dbName} onInit={createDbIfNeeded}>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />

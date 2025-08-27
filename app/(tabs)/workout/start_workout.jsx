@@ -1,12 +1,14 @@
 import { ThemeContext } from "@/context/ThemeContext";
 import { useContext, useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ThemeText from "../../../context/ThemeText";
 
 
 import { useRouter } from 'expo-router';
+import * as SQLite from 'expo-sqlite';
 import { useSQLiteContext } from 'expo-sqlite';
+import { dbName } from "../../_layout";
 
 
 const start_workout = () => {
@@ -65,7 +67,7 @@ const start_workout = () => {
         console.log('in load exercises');
         
         const result = await db.getAllAsync("SELECT * FROM exercises ORDER BY id DESC");
-        console.log(result);
+        // console.log(result);
 
         setExerciseList(result)
         
@@ -75,7 +77,7 @@ const start_workout = () => {
         console.log('clicked add exercise');
 
         exerciseList.forEach(item => {
-            console.log(item.name);
+            // console.log(item.name);
             
         })
 
@@ -258,10 +260,14 @@ const start_workout = () => {
         </TouchableOpacity>
     )
 
-    const handleFinishWorkout = () => {
+    const handleFinishWorkout = async () => {
         
+        const dbTrans = await SQLite.openDatabaseAsync(dbName);
+
 
         const workoutToSubmit = currentWorkout;
+        let setsToSubmit = [];
+
         workoutToSubmit.end_time = new Date(Date.now()).toLocaleString('en-US', {
                         year: 'numeric',
                         month: 'long',
@@ -273,10 +279,110 @@ const start_workout = () => {
         console.log('workout to submit: ');
         console.log(JSON.stringify(workoutToSubmit));
 
-        console.log('exercises/sets to submit: ');
-        console.log(JSON.stringify(exercises));
+        exercises.map(exercise => {
+            setsToSubmit.push(...exercise.sets);
+        })
+
+        console.log('sets to submit: ');
+        console.log(JSON.stringify(setsToSubmit));
+
+
+        Promise.all([
+            dbTrans.withTransactionAsync(async () => {
+
+                try {
+
+                    let workoutId = '';
+                    let setIds = [];
+
+                    const result = await dbTrans.runAsync("INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
+                    [workoutToSubmit.name, workoutToSubmit.start_time, workoutToSubmit.end_time]);
+
+                    const newWorkoutId = result.lastInsertRowId;
+                    console.log('New row ID:', newWorkoutId);
+                    
+                    workoutId = newWorkoutId;
+
+                    for (let index = 0; index < setsToSubmit.length; index++) {
+                        const set = setsToSubmit[index];
+                
+                        const id = await dbTrans.runAsync('INSERT INTO sets (reps, weight, exercise_id, workout_id) VALUES (?, ?, ?, ?)',
+                                [set.reps, set.weight, set.exerciseId, workoutId]);
+
+                        const setId = id.lastInsertRowId;
+
+                        // await dbTrans.runAsync("INSERT INTO workout_sets (workout_id, set_id) VALUES (?, ?)",
+                        //     [workoutId, setId]
+                        // )
+                    
+                    }
+
+
+
+                } catch (e) {
+                    console.error(e);
+                    
+                }
+                
+                    router.back()
+            })
+        ])
+
+
+
+        // try {
+        //     dbTrans.transaction(tx => {
+        //         tx.executeSql("INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
+        //             [workoutToSubmit.name, workoutToSubmit.start_time, workoutToSubmit.end_time],
+        //             (transaction, resultset) => {
+        //                 const newRowId = resultSet.insertId;
+        //                 console.log('New row ID:', newRowId);
+        //             },
+        //             (transaction, error) => {
+        //                 console.error('Error inserting data:', error);
+        //                 return true; 
+        //             })
+        //     })
+
+        //     // await db.runAsync("INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
+        //     //         [workoutToSubmit.name, workoutToSubmit.start_time, workoutToSubmit.end_time]
+        //     // )
+
+        //     for (let index = 0; index < setsToSubmit.length; index++) {
+        //         const set = setsToSubmit[index];
+                
+        //         const id = await db.runAsync('INSERT INTO sets (reps, weight, exercise_id) VALUES (?, ?, ?)',
+        //             [set.reps, set.weight, set.exerciseId]);
+
+        //         console.log(id);
+                    
+        //     }
+
+
+
+
+        //     router.back()
+            
+        // } catch (e) {
+        //     console.error(e);
+            
+        // }
         
-        
+    }
+
+    const renderFooter = () => {
+        return (<View>
+            <Pressable
+                    style={[styles.addButton, styles.addButtonPrimary]}
+                    onPress={handleSubmit}>
+                    <Text style={styles.buttonText}>Add Exercise</Text>
+            </Pressable>
+            <Pressable 
+                    style={[styles.addButton, styles.cancelButton]}
+                    onPress={handleCancel}>
+                    <Text style={styles.buttonText}>Cancel Workout</Text>
+            </Pressable>
+        </View>)
     }
 
 
@@ -305,25 +411,20 @@ const start_workout = () => {
                 <ThemeText>15:04</ThemeText>
             </View>
         </View>
-        <View style={styles.exerciseContainer}>
-            <Animated.FlatList 
-                data={exercises}
-                renderItem={renderExercise}
-                keyExtractor={data => data.id}/>
-
-            <Pressable
-                    style={[styles.addButton, styles.addButtonPrimary]}
-                    onPress={handleSubmit}>
-                    <Text style={styles.buttonText}>Add Exercise</Text>
-            </Pressable>
-            <Pressable 
-                    style={[styles.addButton, styles.cancelButton]}
-                    onPress={handleCancel}>
-                    <Text style={styles.buttonText}>Cancel Workout</Text>
-            </Pressable>    
+        <KeyboardAvoidingView
+                style={styles.exerciseContainer}
+                // keyboardVerticalOffset={200}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View >
                 
-            
-        </View>
+                    <Animated.FlatList 
+                        data={exercises}
+                        renderItem={renderExercise}
+                        keyExtractor={data => data.id}
+                        ListFooterComponent={renderFooter}/>
+                
+            </View>
+        </KeyboardAvoidingView>
 
         <Modal
           animationType="slide"
@@ -395,7 +496,7 @@ function createStyles(theme, colorScheme) {
         maxWidth: 1024,
     },
     exerciseContainer: {
-        height: '77.5%'
+        height: '75%'
     },
     exerciseCurrentContainer: {
         padding: 10

@@ -120,16 +120,12 @@ export default function dbInit() {
         reps INTEGER,
         weight INTEGER,
         exercise_id INTEGER,
-        FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
+        workout_id INTEGER,
+        FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE,
+        FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE
         );
 
-      CREATE TABLE IF NOT EXISTS workout_exercises (
-        workout_id INTEGER NOT NULL,
-        exercise_id INTEGER NOT NULL,
-        FOREIGN KEY (workout_id) REFERENCES workouts(id),
-        FOREIGN KEY (exercise_id) REFERENCES exercises(id),
-        PRIMARY KEY (workout_id, exercise_id)
-    );  
+    
     
       `
 }
@@ -150,3 +146,11 @@ export function exercisesInitInsert() {
     //     FOREIGN KEY (workout_id) REFERENCES workouts(id),
     //     FOREIGN KEY (exercise_id) REFERENCES exercises(id)
     // );
+
+    //   CREATE TABLE IF NOT EXISTS workout_sets (
+    //     workout_id INTEGER NOT NULL,
+    //     set_id INTEGER NOT NULL,
+    //     FOREIGN KEY (workout_id) REFERENCES workouts(id),
+    //     FOREIGN KEY (set_id) REFERENCES sets(id),
+    //     PRIMARY KEY (workout_id, set_id)
+    // );  
