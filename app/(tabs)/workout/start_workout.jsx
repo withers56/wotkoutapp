@@ -23,6 +23,7 @@ const start_workout = () => {
         end_time: null
     });
     const [currentExerciseId, setCurrentExerciseId] = useState('');
+    const [prevExerciseId, setPrevExeciseId] = useState('');
     const [exercises, setExercises] = useState([{
         id: '',
         name: '',
@@ -89,7 +90,18 @@ const start_workout = () => {
 
     const handleExerciseSelection = (exercise) => {
         console.log('Selected: ' + exercise.name);
+
+        if (currentExerciseId === '') {
+            setPrevExeciseId(exercise.id)
+        }
+
+        if(currentExerciseId != exercise.id) {
+            setPrevExeciseId(currentExerciseId);
+        }
+
         setCurrentExerciseId(exercise.id)
+
+
 
         // setSelectedExercise([...selectedExercise, {id: exercise.id, name: exercise.name, sets: [{weight: 0, reps: 0}]}]);
 
@@ -103,6 +115,12 @@ const start_workout = () => {
         } else {
             setExercises([...exercises, {id: exercise.id, name: exercise.name, sets: []}])
         }
+
+        setCurrentSet({
+            exerciseId: '',
+            weight: 0,
+            reps: 0
+        })
 
         // setCurrentSet((prevData) => ({...prevData, exerciseId: exercise.id}))
 
@@ -149,11 +167,13 @@ const start_workout = () => {
 
         // setSelectedExercise([...selectedExercise.sets, {weight: currentSet.weight, reps: currentSet.reps}])
 
-        setCurrentSet({
-            exerciseId: '',
-            weight: 0,
-            reps: 0
-        })
+        if (prevExerciseId != currentExerciseId) {
+                        console.log('keeps value in fields');
+
+        } else {
+                        console.log('sets fields to zero');
+
+        }
         
     } 
 
@@ -223,6 +243,10 @@ const start_workout = () => {
                         </Pressable>
                     </View>
                 )}
+
+
+                
+
             </View>
     )
 
@@ -234,12 +258,38 @@ const start_workout = () => {
         </TouchableOpacity>
     )
 
+    const handleFinishWorkout = () => {
+        
+
+        const workoutToSubmit = currentWorkout;
+        workoutToSubmit.end_time = new Date(Date.now()).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+        
+        console.log('workout to submit: ');
+        console.log(JSON.stringify(workoutToSubmit));
+
+        console.log('exercises/sets to submit: ');
+        console.log(JSON.stringify(exercises));
+        
+        
+    }
+
 
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.headingContainer}>
             <ThemeText style={styles.text}>{currentWorkout.name}</ThemeText>
             {/* <ThemeText style={styles.text}>{currentWorkout.start_time}</ThemeText> */}
+            <Pressable 
+                style={styles.finishButton}
+                onPress={handleFinishWorkout}>
+                <Text style={styles.buttonText}>Finish</Text>
+            </Pressable>
         </View>
         <View style={styles.metricsContainer}>
             <View>
@@ -261,18 +311,18 @@ const start_workout = () => {
                 renderItem={renderExercise}
                 keyExtractor={data => data.id}/>
 
-            <View>
-                <Pressable
+            <Pressable
                     style={[styles.addButton, styles.addButtonPrimary]}
                     onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Add Exercise</Text>
-                </Pressable>
-                <Pressable 
+            </Pressable>
+            <Pressable 
                     style={[styles.addButton, styles.cancelButton]}
                     onPress={handleCancel}>
                     <Text style={styles.buttonText}>Cancel Workout</Text>
-                </Pressable>
-            </View>
+            </Pressable>    
+                
+            
         </View>
 
         <Modal
@@ -328,9 +378,12 @@ function createStyles(theme, colorScheme) {
     paddingHorizontal: 10,
   },
     headingContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         padding: 10,
         width: '100%',
         maxWidth: 1024,
+        alignItems: 'center'
     },
     metricsContainer: {
         flexDirection: 'row',
@@ -355,8 +408,14 @@ function createStyles(theme, colorScheme) {
       justifyContent: 'center',
       backgroundColor: theme.tabIconSelected,
       padding: 6,
-      marginBottom: 15,
-      marginTop: 15
+      marginTop: 20
+    },
+    finishButton: {
+      width: 100,
+      borderRadius: 20,
+      justifyContent: 'center',
+      backgroundColor: theme.tabIconSelected,
+      padding: 6
     },
     cancelButton: {
         backgroundColor: theme.danger
