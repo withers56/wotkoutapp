@@ -22,9 +22,23 @@ const start_workout = () => {
                     }),
         end_time: null
     });
-    const [exercises, setExercises] = useState([]);
+    const [currentExerciseId, setCurrentExerciseId] = useState('');
+    const [exercises, setExercises] = useState([{
+        id: '',
+        name: '',
+        sets: []
+    }]);
     const [exerciseList, setExerciseList] = useState([]);
-    const [selectedExercise, setSelectedExercise] = useState({});
+    const [selectedExercise, setSelectedExercise] = useState([{
+        id: '',
+        name: '',
+        sets: [
+            {
+                weight: 0,
+                reps: 0
+            }
+        ]
+    }]);
 
     const [savedSets, setSavedSets] = useState([]);
     const [currentSets, setCurrentSets] = useState([]);
@@ -75,21 +89,65 @@ const start_workout = () => {
 
     const handleExerciseSelection = (exercise) => {
         console.log('Selected: ' + exercise.name);
+        setCurrentExerciseId(exercise.id)
 
-        setSelectedExercise(exercise);
+        // setSelectedExercise([...selectedExercise, {id: exercise.id, name: exercise.name, sets: [{weight: 0, reps: 0}]}]);
 
-        setExercises([...exercises, {id: exercise.id, name: exercise.name}])
 
-        setCurrentSet((prevData) => ({...prevData, exerciseId: exercise.id}))
+        if (exercises[0].id === '') {
+            setExercises([{
+                id: exercise.id,
+                name: exercise.name,
+                sets: []
+            }])
+        } else {
+            setExercises([...exercises, {id: exercise.id, name: exercise.name, sets: []}])
+        }
+
+        // setCurrentSet((prevData) => ({...prevData, exerciseId: exercise.id}))
 
 
         setModalVisible(!modalVisible)
     }
 
     const handleCompletedSet = () => {
-        console.log(currentSet);
+        console.log('set that was completed: ' + currentSet.weight, currentSet.reps);
+        console.log('exercise id to add to: ' + currentExerciseId);
+        
+        const setToAdd = {
+            exerciseId: currentExerciseId,
+            weight: currentSet.weight,
+            reps: currentSet.reps
+        }
 
-        setCurrentSets([...currentSets, {exerciseId: currentSet.exerciseId, weight: currentSet.weight, reps: currentSet.reps}])
+        setExercises(prevItems => prevItems.map(item => item.id === setToAdd.exerciseId ? 
+            {...item, sets: [...item.sets, setToAdd]} : item
+        ))
+
+        exercises.map(item => item.id === setToAdd.exerciseId ? console.log(item.sets) : console.log('not found'))
+        
+        const index = exercises.findIndex(item => item.id === currentExerciseId);
+
+        console.log(index);
+
+        exercises.map(item => {console.log('item name: ' + item. name, 'item sets: ');
+            item.sets.map(set => {console.log('weight: ' + set.weight, 'reps: ' + set.reps);
+            })
+        })
+
+        // if (index !== -1) {
+        //     data[index] = { ...data[index], ...objectToUpdate }; // Update properties or replace entirely
+        // }
+
+
+        
+
+    
+        // setCurrentSets([...currentSets, {exerciseId: currentSet.exerciseId, weight: currentSet.weight, reps: currentSet.reps}])
+
+        
+
+        // setSelectedExercise([...selectedExercise.sets, {weight: currentSet.weight, reps: currentSet.reps}])
 
         setCurrentSet({
             exerciseId: '',
@@ -99,11 +157,13 @@ const start_workout = () => {
         
     } 
 
-    const renderDataRow = ({item}) => (
+    const renderDataRow = ({item, index}) => (
         <View style={styles.exerciseData}>
-                    <ThemeText>{currentSets.length + 1}</ThemeText>
+                    <ThemeText>{index + 1}</ThemeText>
                     <ThemeText>-</ThemeText>
-                    <TextInput
+                    <ThemeText>{item.weight}</ThemeText>
+                    <ThemeText>{item.reps}</ThemeText>
+                    {/* <TextInput
                         style={styles.input}
                         keyboardType="numeric" 
                         value={item.weight}
@@ -114,9 +174,10 @@ const start_workout = () => {
                         keyboardType="numeric"
                         value={item.reps}
                         onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
-                        placeholder='0'/>
+                        placeholder='0'/> */}
                     <Pressable
-                        onPress={handleCompletedSet}>
+                        // onPress={handleCompletedSet}
+                        >
                         <ThemeText>add</ThemeText>
                     </Pressable>
                 </View>
@@ -125,39 +186,43 @@ const start_workout = () => {
     const renderExercise = ({ item }) => (
             <View style={styles.exerciseCurrentContainer}>
                 <ThemeText>{item.name}</ThemeText>
-                <View style={styles.exerciseData}>
+                {exercises[0].id != '' ? (<View style={styles.exerciseData}>
                     <ThemeText>Set</ThemeText>
                     <ThemeText>Previous</ThemeText>
                     <ThemeText>Lbs</ThemeText>
                     <ThemeText>Reps</ThemeText>
                     <ThemeText>^</ThemeText>
-                </View>
+                </View>) : ('')}
+                
                 <Animated.FlatList 
-                    data={currentSets}
+                    data={item.sets}
                     renderItem={renderDataRow}
-                    keyExtractor={data => data.id}
+                    keyExtractor={data => data.length}
                     />
 
-                <View style={styles.exerciseData}>
-                    <ThemeText>{currentSets.length + 1}</ThemeText>
-                    <ThemeText>-</ThemeText>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType="numeric" 
-                        value={currentSet.weight}
-                        onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
-                        placeholder='0'/>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={currentSet.reps}
-                        onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
-                        placeholder='0'/>
-                    <Pressable
-                        onPress={handleCompletedSet}>
-                        <ThemeText>add</ThemeText>
-                    </Pressable>
-                </View>
+
+                {exercises[0].id === '' || item.id != currentExerciseId ? ('') : (
+                    <View style={styles.exerciseData}>
+                        <ThemeText>{item.sets.length + 1}</ThemeText>
+                        <ThemeText>-</ThemeText>
+                        <TextInput
+                            style={styles.input}
+                            keyboardType="numeric" 
+                            value={currentSet.weight}
+                            onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
+                            placeholder='0'/>
+                        <TextInput
+                            style={styles.input}
+                            keyboardType="numeric"
+                            value={currentSet.reps}
+                            onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
+                            placeholder='0'/>
+                        <Pressable
+                            onPress={handleCompletedSet}>
+                            <ThemeText>add</ThemeText>
+                        </Pressable>
+                    </View>
+                )}
             </View>
     )
 
@@ -357,6 +422,10 @@ function createStyles(theme, colorScheme) {
     },
     
   })
+}
+
+const filterSets = (allSets, targetId) => {
+    return currentSet.filter(set => set.exerciseId == currentSet.exerciseId)
 }
 
 export default start_workout
