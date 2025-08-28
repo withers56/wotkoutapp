@@ -20,7 +20,8 @@ const start_workout = () => {
                         month: 'long',
                         day: 'numeric',
                         hour: '2-digit',
-                        minute: '2-digit'
+                        minute: '2-digit',
+                        second: '2-digit'
                     }),
         end_time: null
     });
@@ -32,6 +33,8 @@ const start_workout = () => {
         sets: []
     }]);
     const [exerciseList, setExerciseList] = useState([]);
+    const [exerciseListFiltered, setExerciseListFiltered] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [selectedExercise, setSelectedExercise] = useState([{
         id: '',
         name: '',
@@ -51,13 +54,21 @@ const start_workout = () => {
         reps: 0
     });
 
-    const [count, setCount] = useState(0);
+    const [timer, setTimer] = useState(0);
 
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
 
     const router = useRouter();
     const db = useSQLiteContext();
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTimer(timer => timer + 1);
+         }, 1000);
+
+         return () => clearInterval(interval);
+    }, [])
 
     useEffect(()=> {
         loadExercises();
@@ -69,7 +80,8 @@ const start_workout = () => {
         const result = await db.getAllAsync("SELECT * FROM exercises ORDER BY id DESC");
         // console.log(result);
 
-        setExerciseList(result)
+        setExerciseList(result);
+        setExerciseListFiltered(result);
         
     }
 
@@ -123,6 +135,10 @@ const start_workout = () => {
             weight: 0,
             reps: 0
         })
+
+        //sets exercise selection modal to no searchquery and the full list of exercises
+        setSearchQuery('');
+        setExerciseListFiltered(exerciseList)
 
         // setCurrentSet((prevData) => ({...prevData, exerciseId: exercise.id}))
 
@@ -385,6 +401,21 @@ const start_workout = () => {
         </View>)
     }
 
+    const handleSearchFilter = (value) => {
+        setSearchQuery(value);
+        if (value.trim() === '') {
+            setExerciseListFiltered(exerciseList); // Show all data if search is empty
+            return;
+        }
+
+        const lowercasedQuery = value.toLowerCase();
+        const newData = exerciseList.filter(item => {
+            return item.name.toLowerCase().includes(lowercasedQuery)
+        });
+
+        setExerciseListFiltered(newData);
+    }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -408,7 +439,7 @@ const start_workout = () => {
             </View>
             <View>
                 <ThemeText>Time</ThemeText>
-                <ThemeText>15:04</ThemeText>
+                <ThemeText>{new Date(timer * 1000).toISOString().substring(14, 19)}</ThemeText>
             </View>
         </View>
         <KeyboardAvoidingView
@@ -448,9 +479,16 @@ const start_workout = () => {
                             <Text style={styles.textStyle}>Add</Text>
                         </Pressable>
                     </View>
+                    <View>
+                        <TextInput 
+                            style={styles.input}
+                            value={searchQuery}
+                            onChangeText={handleSearchFilter}
+                            placeholder='search exercise'/>
+                    </View>
 
                     <Animated.FlatList 
-                        data={exerciseList}
+                        data={exerciseListFiltered}
                         renderItem={renderExerciseList}
                         keyExtractor={data => data.id}/>
                     

@@ -137,6 +137,16 @@ export function exercisesInitInsert() {
     `
 }
 
+export function getWorkoutInfoById(id) {
+  return `
+      SELECT w.id, w.start_time, s.weight, s.reps, e.name 
+      FROM workouts AS w 
+      LEFT OUTER JOIN sets AS s ON w.id = s.workout_id 
+      LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id
+      WHERE w.id = ${id};
+  `
+}
+
 
 
 // CREATE TABLE IF NOT EXISTS WorkoutExercises (

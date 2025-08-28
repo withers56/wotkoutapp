@@ -1,11 +1,12 @@
 import { ThemeContext } from "@/context/ThemeContext";
 import { useCallback, useContext, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { getWorkoutInfoById } from "../../../db/dbstatments";
 
 
 
@@ -82,13 +83,13 @@ export default function Workout() {
     })
 
       try {
-        db.runAsync(
-          "INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
-          ['test v2', start, end]
-        );
+        // db.runAsync(
+        //   "INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
+        //   ['test v2', start, end]
+        // );
 
         console.log('past run async');
-        loadHistory()
+        // loadHistory()
 
         router.navigate('/workout/start_workout')
       } catch (e) {
@@ -146,21 +147,57 @@ export default function Workout() {
 
     }
 
+    const handleWorkoutPress = async (id) => {
+      console.log('clicked workout with id of: ' + id);
+
+      const workoutMap = new Map();
+
+      const workoutData = await db.getAllAsync(getWorkoutInfoById(id));
+      
+      workoutData.map(data => {
+        console.log(data);
+        
+        if (!workoutMap.has(data.name)) {
+          console.log('create key with name');
+
+          workoutMap.set(data.name, [{
+            weight: data.weight,
+            reps: data.reps
+          }]);
+          
+        } else {
+          console.log('add to keys value');
+          
+          workoutMap.set(data.name, [...workoutMap.get(data.name), {
+            weight: data.weight,
+            reps: data.reps
+          }])
+        }
+      })
+
+      console.log(workoutMap);
+      
+      
+    }
+
     const renderListItem = ({ item }) => (
-      <View style={styles.workoutItem}>
-        {/* <Text style={styles.workoutText}>{item.name}</Text> */}
-        <View>
-          <Text style={styles.workoutText}>{item.start_time}</Text>
-          {/* <Text style={styles.workoutText}>{item.end_time}</Text> */}
+      <TouchableOpacity
+        onPress={() => {handleWorkoutPress(item.id)}}>
+        <View style={styles.workoutItem}>
+          {/* <Text style={styles.workoutText}>{item.name}</Text> */}
+          <View>
+            <Text style={styles.workoutText}>{item.start_time}</Text>
+            {/* <Text style={styles.workoutText}>{item.end_time}</Text> */}
+          </View>
+          <View>
+            <Pressable 
+              style={styles.button}
+              onPress={() => {handleDelete(item.id)}}>
+              <Text>Delete</Text>
+            </Pressable>  
+          </View>
         </View>
-        <View>
-          <Pressable 
-            style={styles.button}
-            onPress={() => {handleDelete(item.id)}}>
-            <Text>Delete</Text>
-          </Pressable>  
-        </View>
-      </View>
+      </TouchableOpacity>
     )
 
     return (
