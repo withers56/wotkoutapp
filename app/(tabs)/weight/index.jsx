@@ -1,6 +1,5 @@
-import { ThemeProvider } from '@/context/ThemeContext';
+import { ThemeProvider, ThemeContext } from '@/context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ThemeContext } from "@/context/ThemeContext";
 import { React, useState, useContext, useEffect} from 'react'
 import { Text, View, TextInput, Pressable, StyleSheet, FlatList } from 'react-native'
 // import { Image } from 'expo-image';

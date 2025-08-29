@@ -21,6 +21,7 @@ export const Colors = {
   dark: {
     text: 'white',
     color: 'white',
+    colorInactive: 'grey',
     background: '#2c2c2c',
     modalBackground: '#3e3e3eff',
     icon: 'red',

@@ -1,17 +1,19 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { ThemeContext } from "@/context/ThemeContext";
 import { useContext, useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import ThemeText from "../../../context/ThemeText";
+import ThemeText from "../../../../context/ThemeText";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-
-import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as SQLite from 'expo-sqlite';
-import { useSQLiteContext } from 'expo-sqlite';
-import { dbName } from "../../_layout";
+import { dbName } from "../../../_layout";
 
 
 const start_workout = () => {
+    const { id } = useLocalSearchParams();
     const [modalVisible, setModalVisible] = useState(false);
     const [currentWorkout, setCurrentWorkout] = useState({
         name: 'My Workout',
@@ -64,7 +66,7 @@ const start_workout = () => {
     const styles = createStyles(theme, colorScheme)
 
     const router = useRouter();
-    const db = useSQLiteContext();
+    const db = SQLite.useSQLiteContext();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -77,6 +79,15 @@ const start_workout = () => {
     }, [])
 
     useEffect(()=> {
+        console.log('id: ' + id);
+        
+        if (id !== '[id]') {
+            console.log('in view mode');
+            //need to pass exercises and sets of workout selected
+        } else {
+            console.log('in create mode');
+            //runs default path
+        }
         getWorkoutNumber();
         loadExercises();
     }, [])
@@ -94,7 +105,7 @@ const start_workout = () => {
     const loadExercises = async () => {
         console.log('in load exercises');
         
-        const result = await db.getAllAsync("SELECT * FROM exercises ORDER BY id DESC");
+        const result = await db.getAllAsync("SELECT * FROM exercises ORDER BY name");
         // console.log(result);
 
         setExerciseList(result);
@@ -164,14 +175,26 @@ const start_workout = () => {
     }
 
     const handleCompletedSet = () => {
+
+
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+
         console.log('set that was completed: ' + currentSet.weight, currentSet.reps);
         console.log('exercise id to add to: ' + currentExerciseId);
+
+        let filteredWeight = 0;
+        let filteredReps = 0;
+
+        if (currentSet.weight !== '' || currentSet.reps !== '') {
+            filteredWeight = currentSet.weight;
+            filteredReps = currentSet.reps;
+        }
         
         const setToAdd = {
             id: setTracker,
             exerciseId: currentExerciseId,
-            weight: currentSet.weight,
-            reps: currentSet.reps
+            weight: filteredWeight,
+            reps: filteredReps
         }
 
         setExercises(prevItems => prevItems.map(item => item.id === setToAdd.exerciseId ? 
@@ -218,10 +241,10 @@ const start_workout = () => {
 
     const renderDataRow = ({item, index}) => (
         <View style={styles.exerciseData}>
-                    <ThemeText>{index + 1}</ThemeText>
+                    <Text style={[styles.text, styles.gridItem]}>{index + 1}</Text>
                     {/* <ThemeText>-</ThemeText> */}
-                    <ThemeText>{item.weight}</ThemeText>
-                    <ThemeText>{item.reps}</ThemeText>
+                    <Text style={[styles.text, styles.gridItem]}>{item.weight}</Text>
+                    <Text style={[styles.text, styles.gridItem]}>{item.reps}</Text>
                     {/* <TextInput
                         style={styles.input}
                         keyboardType="numeric" 
@@ -236,21 +259,28 @@ const start_workout = () => {
                         placeholder='0'/> */}
                     <Pressable
                         // onPress={handleCompletedSet}
+                        style={styles.griditemAdd}    
                         >
-                        <ThemeText>add</ThemeText>
+                        <Text style={styles.text}>
+                            <FontAwesome name="check" size={24} color={theme.color} />
+                        </Text>
                     </Pressable>
                 </View>
     )
 
     const renderExercise = ({ item }) => (
             <View style={styles.exerciseCurrentContainer}>
-                <ThemeText>{item.name}</ThemeText>
-                {exercises[0].id != '' ? (<View style={styles.exerciseData}>
-                    <ThemeText>Set</ThemeText>
+                <View style={styles.exerciseNameContainer}>
+                    <Text style={[styles.text, {fontSize: 24}]}>{item.name}</Text>
+                </View>
+                {exercises[0].id != '' ? (<View style={[styles.exerciseData, styles.bottomBorder]}>
+                    <Text style={[styles.text, styles.gridItem]}>Set</Text>
                     {/* <ThemeText>Previous</ThemeText> */}
-                    <ThemeText>Lbs</ThemeText>
-                    <ThemeText>Reps</ThemeText>
-                    <ThemeText>^</ThemeText>
+                    <Text style={[styles.text, styles.gridItem]}>Lbs</Text>
+                    <Text style={[styles.text, styles.gridItem]}>Reps</Text>
+                    <Text style={[styles.text, styles.griditemAdd]}>
+                        <FontAwesome name="check" size={24} color={theme.color} />
+                    </Text>
                 </View>) : ('')}
                 
                 <Animated.FlatList 
@@ -262,24 +292,38 @@ const start_workout = () => {
 
                 {exercises[0].id === '' || item.id != currentExerciseId ? ('') : (
                     <View style={styles.exerciseData}>
-                        <ThemeText>{item.sets.length + 1}</ThemeText>
+                        <Text style={[styles.text, styles.gridItem]}>{item.sets.length + 1}</Text>
                         {/* <ThemeText>-</ThemeText> */}
-                        <TextInput
-                            style={styles.input}
+                        <View style={styles.gridItem}>
+                            <TextInput
+                            style={[styles.input]}
                             keyboardType="numeric" 
                             value={currentSet.weight}
                             onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
                             placeholder='0'/>
-                        <TextInput
+                        </View>
+                        <View style={styles.gridItem}>
+                            <TextInput
                             style={styles.input}
                             keyboardType="numeric"
                             value={currentSet.reps}
                             onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
                             placeholder='0'/>
-                        <Pressable
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.griditemAdd}
                             onPress={handleCompletedSet}>
-                            <ThemeText>add</ThemeText>
-                        </Pressable>
+                            <Text style={styles.text}>
+                                <FontAwesome name="check" size={24} color={theme.colorInactive} />
+                            </Text>        
+                        </TouchableOpacity>
+                        
+                        {/* <Pressable
+                            style={styles.griditemAdd}
+                            onPress={handleCompletedSet}>
+                            
+                        </Pressable> */}
                     </View>
                 )}
 
@@ -491,18 +535,24 @@ const start_workout = () => {
                     <View style={styles.modalButtons}>
                         <Pressable
                             // style={[styles.button, styles.buttonClose]}
-                            onPress={() => setModalVisible(!modalVisible)}>
-                            <Text style={styles.textStyle}>X</Text>
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setModalVisible(!modalVisible)}}>
+                            <Text style={styles.text}>
+                                <FontAwesome name="close" size={32} color={theme.color} />
+                            </Text>
                         </Pressable>    
                         <Pressable
                             // style={[styles.button, styles.buttonClose]}
-                            onPress={() => setModalVisible(!modalVisible)}>
-                            <Text style={styles.textStyle}>Add</Text>
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setModalVisible(!modalVisible)}}>
+                            <Text style={styles.text}>Add</Text>
                         </Pressable>
                     </View>
-                    <View>
+                    <View style={styles.modalSearchbar}>
                         <TextInput 
-                            style={styles.input}
+                            style={styles.searchInput}
                             value={searchQuery}
                             onChangeText={handleSearchFilter}
                             placeholder='search exercise'/>
@@ -529,13 +579,21 @@ function createStyles(theme, colorScheme) {
       flexDirection: 'column',
     },
     text: {
-      color: theme.text
+      color: theme.text,
+      fontSize: 18
     },
     input: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     paddingHorizontal: 10,
+    width: '45%'
+  },
+  searchInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 10
   },
     headingContainer: {
         flexDirection: 'row',
@@ -553,6 +611,10 @@ function createStyles(theme, colorScheme) {
         borderBottomWidth: 1,
         width: '100%',
         maxWidth: 1024,
+    },
+    bottomBorder: {
+        borderBottomColor: 'gray',
+        borderBottomWidth: 1
     },
     exerciseContainer: {
         height: '75%'
@@ -607,24 +669,42 @@ function createStyles(theme, colorScheme) {
       marginHorizontal: 'auto',
       pointerEvents: 'auto',
     },
+    exerciseNameContainer: {
+        marginBottom: 10
+    },
     exerciseData: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        marginVertical: 7,
+        paddingBottom: 5
+        // justifyContent: 'space-between',
     },
     centeredView: {
       flex: 1,
       justifyContent: 'flex-end',
       alignItems: 'center',
     },
+    gridItem: {
+        flex: 1
+    },
+    griditemAdd: {
+        flex: 0,
+        alignItems: 'flex-end'
+    },
     modalButtons: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        padding: 5,
+        alignItems: 'center',
+        marginBottom: 7
+    },
+    modalSearchbar: {
+        marginBottom: 10
     },
 
     modalView: {
       margin: 20,
       width: '95%',
-      height: '72%',
+      height: '90%',
       backgroundColor: theme.modalBackground,
       borderRadius: 20,
       padding: 10,
@@ -643,8 +723,8 @@ function createStyles(theme, colorScheme) {
   })
 }
 
-const filterSets = (allSets, targetId) => {
-    return currentSet.filter(set => set.exerciseId == currentSet.exerciseId)
-}
+// const filterSets = (allSets, targetId) => {
+//     return currentSet.filter(set => set.exerciseId == currentSet.exerciseId)
+// }
 
 export default start_workout

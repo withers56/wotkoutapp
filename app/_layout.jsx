@@ -6,10 +6,11 @@ import { ThemeProvider } from "../context/ThemeContext";
 import dbInit, { DEFAULT_EXERCISES } from '../db/dbstatments';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { SQLiteProvider } from 'expo-sqlite';
+// import { SQLiteProvider } from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export const dbName = 'estnewv5.db';
+export const dbName = 'estnewv8.db';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -24,45 +25,53 @@ export default function RootLayout() {
 
   const createDbIfNeeded = async (db) => {
     console.log('creating database if working');
+
+    db.execAsync(`
+        
+        PRAGMA foreign_keys = ON;
+      `)
     
-    await db.execAsync(dbInit()) // creates tables if not existing
 
-    //check to see if exercises is empty
+      db.withTransactionAsync(async () => {
+        try {
 
-    const exerciseCheck = await db.getAllAsync('SELECT COUNT(1) AS rowCount FROM exercises');
+          
+
+          await db.execAsync(dbInit())
+
+
+          const exerciseCheck = await db.getAllAsync('SELECT COUNT(1) AS rowCount FROM exercises');
 
     if(exerciseCheck[0].rowCount < 1) {
       console.log('insert default exercises');
       // await db.execAsync(exercisesInitInsert());
-        DEFAULT_EXERCISES.forEach(item => {
-          db.runAsync(
-            'INSERT INTO exercises (name) VALUES (?)',
-            item.name
-          );
+      DEFAULT_EXERCISES.forEach(item => {
+        db.runAsync(
+          'INSERT INTO exercises (name) VALUES (?)',
+          item.name
+        );
 
           // console.log(item.name);
-        });    
+      });    
     } 
-
-
-    // await db.runAsync('DELETE FROM exercises');
-
-
-    // console.log(await db.getAllAsync('SELECT * FROM exercises'));
-    
-   
+          
+        } catch (e) {
+          console.error(e);
+        }
+      })
+      
   }
 
   return (
    
       <ThemeProvider>
         <SafeAreaProvider>
-          <SQLiteProvider databaseName={dbName} onInit={createDbIfNeeded}>
+          <SQLite.SQLiteProvider databaseName={dbName} onInit={createDbIfNeeded}>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
             </Stack>
-          </SQLiteProvider>
+          </SQLite.SQLiteProvider>
           <StatusBar style="auto" />
         </SafeAreaProvider>    
       </ThemeProvider>

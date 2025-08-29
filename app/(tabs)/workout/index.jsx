@@ -3,10 +3,11 @@ import { useCallback, useContext, useState } from 'react';
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from "react-native-safe-area-context";
+import { List } from 'react-native-paper';
 
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { getWorkoutInfoById } from "../../../db/dbstatments";
+import { getAllWorkoutInfo, getAllWorkoutInfoById, getWorkoutInfoById } from "../../../db/dbstatments";
 
 
 
@@ -45,13 +46,13 @@ export default function Workout() {
       test.sort((a, b) => {
         return a.id - b.id;
       });
-      console.log(test);
+      // console.log(test);
 
 
       
       // console.log(sets);
 
-      
+    
       
       setWorkoutHistory(result);
     }
@@ -91,7 +92,7 @@ export default function Workout() {
         console.log('past run async');
         // loadHistory()
 
-        router.navigate('/workout/start_workout')
+        router.navigate('/workout/start_workout/[id]')
       } catch (e) {
         console.error(e);       
       }
@@ -147,6 +148,58 @@ export default function Workout() {
 
     }
 
+    // const mapWorkoutHistoryData = async () => {
+    //   const workoutMap = new Map();
+    //   const exerciseMap = new Map();
+
+    //   const workoutData = await db.getAllAsync(getAllWorkoutInfo());
+      
+    //   workoutData.map(data => {
+    //     console.log(data);
+        
+    //     if (!workoutMap.has(data.wname)) {
+    //       console.log('create outer map key with name: ' + data.wname);
+
+
+    //       if (!exerciseMap.has(data.ename)) {
+    //         console.log('create inner map key with name: ' + data.ename);
+
+    //           exerciseMap.set(data.ename, [{
+              
+    //           weight: data.weight,
+    //           reps: data.reps
+    //         }]);
+    //       } else {
+    //         console.log('add to keys value inner map');
+
+    //         exerciseMap.set(data.ename, [...exerciseMap.get(data.ename), {
+            
+    //         weight: data.weight,
+    //         reps: data.reps
+    //       }])
+    //       }
+
+
+
+
+    //       // workoutMap.set(data.wname, exerciseMap.get(data.ename));
+    //       workoutMap.set(data.wname, 'test');
+
+          
+    //     } else {
+    //       console.log('add to keys value');
+          
+    //       // workoutMap.set(data.wname, [...workoutMap.get(data.wname), exerciseMap.get(data.ename)])
+    //       workoutMap.set(data.wname, [...workoutMap.get(data.wname), 'test'])
+
+    //     }
+    //   })
+
+    //   console.log(exerciseMap);
+      
+    //   // console.log(workoutMap);
+    // }
+
     const handleWorkoutPress = async (id) => {
       console.log('clicked workout with id of: ' + id);
 
@@ -177,7 +230,9 @@ export default function Workout() {
 
       console.log(workoutMap);
       
-      
+      // router.navigate(`/workout/start_workout${id}`)
+      // router.push({ pathname: "/workout/start_workout[id]", params: { id: 1 } });
+      router.push(`workout/start_workout/${id}`)
     }
 
     const renderListItem = ({ item }) => (
@@ -215,6 +270,7 @@ export default function Workout() {
               renderItem={renderListItem}
               keyExtractor={data => data.id} />
 
+            
         </SafeAreaView>
         
     )

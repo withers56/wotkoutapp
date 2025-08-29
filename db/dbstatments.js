@@ -99,9 +99,7 @@ export const DEFAULT_EXERCISES = [
   ]
 
 export default function dbInit() {
-    return `PRAGMA journal_mode = WAL;
-
-      PRAGMA foreign_keys = ON;
+    return `
 
       CREATE TABLE IF NOT EXISTS workouts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,6 +142,15 @@ export function getWorkoutInfoById(id) {
       LEFT OUTER JOIN sets AS s ON w.id = s.workout_id 
       LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id
       WHERE w.id = ${id};
+  `
+}
+
+export function getAllWorkoutInfo() {
+  return `
+      SELECT w.id, w.start_time, s.weight, s.reps, e.name AS ename, w.name AS wname 
+      FROM workouts AS w 
+      LEFT OUTER JOIN sets AS s ON w.id = s.workout_id 
+      LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id;
   `
 }
 
