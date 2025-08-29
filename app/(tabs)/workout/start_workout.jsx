@@ -54,7 +54,11 @@ const start_workout = () => {
         reps: 0
     });
 
+    const [timerStart, setTimerStart] = useState(Date.now())
     const [timer, setTimer] = useState(0);
+
+    const [volumeTracker, setVolumeTracker] = useState(0);
+    const [setTracker, setSetTracker] = useState(0);
 
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
@@ -64,15 +68,28 @@ const start_workout = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setTimer(timer => timer + 1);
+            
+            const timePast = ((Date.now() - timerStart) / 1000)
+            setTimer(timePast);
          }, 1000);
 
          return () => clearInterval(interval);
     }, [])
 
     useEffect(()=> {
+        getWorkoutNumber();
         loadExercises();
     }, [])
+
+    const getWorkoutNumber = async () => {
+        console.log('in get workout number');
+
+        const result = await db.getAllAsync("SELECT COUNT(1) AS numberOfWorkouts FROM workouts")
+
+        console.log(result[0].numberOfWorkouts);
+        
+        setCurrentWorkout({...currentWorkout, name: 'My Workout #' + result[0].numberOfWorkouts})
+    }
 
     const loadExercises = async () => {
         console.log('in load exercises');
@@ -151,6 +168,7 @@ const start_workout = () => {
         console.log('exercise id to add to: ' + currentExerciseId);
         
         const setToAdd = {
+            id: setTracker,
             exerciseId: currentExerciseId,
             weight: currentSet.weight,
             reps: currentSet.reps
@@ -159,6 +177,9 @@ const start_workout = () => {
         setExercises(prevItems => prevItems.map(item => item.id === setToAdd.exerciseId ? 
             {...item, sets: [...item.sets, setToAdd]} : item
         ))
+
+        setVolumeTracker(prevVolume => prevVolume + (setToAdd.weight * setToAdd.reps))
+        setSetTracker(prevSets => prevSets + 1);
 
         exercises.map(item => item.id === setToAdd.exerciseId ? console.log(item.sets) : console.log('not found'))
         
@@ -198,7 +219,7 @@ const start_workout = () => {
     const renderDataRow = ({item, index}) => (
         <View style={styles.exerciseData}>
                     <ThemeText>{index + 1}</ThemeText>
-                    <ThemeText>-</ThemeText>
+                    {/* <ThemeText>-</ThemeText> */}
                     <ThemeText>{item.weight}</ThemeText>
                     <ThemeText>{item.reps}</ThemeText>
                     {/* <TextInput
@@ -226,7 +247,7 @@ const start_workout = () => {
                 <ThemeText>{item.name}</ThemeText>
                 {exercises[0].id != '' ? (<View style={styles.exerciseData}>
                     <ThemeText>Set</ThemeText>
-                    <ThemeText>Previous</ThemeText>
+                    {/* <ThemeText>Previous</ThemeText> */}
                     <ThemeText>Lbs</ThemeText>
                     <ThemeText>Reps</ThemeText>
                     <ThemeText>^</ThemeText>
@@ -235,14 +256,14 @@ const start_workout = () => {
                 <Animated.FlatList 
                     data={item.sets}
                     renderItem={renderDataRow}
-                    keyExtractor={data => data.length}
+                    keyExtractor={data => data.id}
                     />
 
 
                 {exercises[0].id === '' || item.id != currentExerciseId ? ('') : (
                     <View style={styles.exerciseData}>
                         <ThemeText>{item.sets.length + 1}</ThemeText>
-                        <ThemeText>-</ThemeText>
+                        {/* <ThemeText>-</ThemeText> */}
                         <TextInput
                             style={styles.input}
                             keyboardType="numeric" 
@@ -431,11 +452,11 @@ const start_workout = () => {
         <View style={styles.metricsContainer}>
             <View>
                 <ThemeText>Volume</ThemeText>
-                <ThemeText>22938</ThemeText>
+                <ThemeText>{volumeTracker}</ThemeText>
             </View>
             <View>
                 <ThemeText>Sets</ThemeText>
-                <ThemeText>12</ThemeText>
+                <ThemeText>{setTracker}</ThemeText>
             </View>
             <View>
                 <ThemeText>Time</ThemeText>
