@@ -92,7 +92,7 @@ export default function Workout() {
         console.log('past run async');
         // loadHistory()
 
-        router.navigate('/workout/start_workout/[id]')
+        router.navigate('/workout/start_workout')
       } catch (e) {
         console.error(e);       
       }
@@ -232,7 +232,7 @@ export default function Workout() {
       
       // router.navigate(`/workout/start_workout${id}`)
       // router.push({ pathname: "/workout/start_workout[id]", params: { id: 1 } });
-      router.push(`workout/start_workout/${id}`)
+      // router.push(`workout/start_workout/${id}`)
     }
 
     const renderListItem = ({ item }) => (

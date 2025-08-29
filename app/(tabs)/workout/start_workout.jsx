@@ -3,17 +3,16 @@ import { ThemeContext } from "@/context/ThemeContext";
 import { useContext, useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import ThemeText from "../../../../context/ThemeText";
+import ThemeText from "../../../context/ThemeText";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import * as Haptics from 'expo-haptics';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import * as SQLite from 'expo-sqlite';
-import { dbName } from "../../../_layout";
+import { dbName } from "../../_layout";
 
 
 const start_workout = () => {
-    const { id } = useLocalSearchParams();
     const [modalVisible, setModalVisible] = useState(false);
     const [currentWorkout, setCurrentWorkout] = useState({
         name: 'My Workout',
@@ -79,15 +78,6 @@ const start_workout = () => {
     }, [])
 
     useEffect(()=> {
-        console.log('id: ' + id);
-        
-        if (id !== '[id]') {
-            console.log('in view mode');
-            //need to pass exercises and sets of workout selected
-        } else {
-            console.log('in create mode');
-            //runs default path
-        }
         getWorkoutNumber();
         loadExercises();
     }, [])

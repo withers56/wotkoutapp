@@ -16,7 +16,7 @@ const StackLayout = () => {
                     headerShown: false
                 }}/>
             <Stack.Screen 
-                name="[id]"
+                name="start_workout"
                 options={{
                     title: new Date(Date.now()).toLocaleString('en-US', {
                         year: 'numeric',
