@@ -30,6 +30,17 @@ const StackLayout = () => {
                         
                     }
                 }}/>
+            <Stack.Screen 
+                name="view_workout/[id]"
+                options={{
+                    title: 'My Workout',
+                    headerShown: true,
+                    headerTintColor: theme.color,
+                    headerStyle: {
+                        backgroundColor: theme.background,
+                        
+                    }
+                }}/>    
         </Stack>
     );
 };

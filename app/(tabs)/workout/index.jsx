@@ -230,6 +230,8 @@ export default function Workout() {
 
       console.log(workoutMap);
       
+      // router.navigate('/workout/view_workout')
+      router.push(`/workout/view_workout/${id}`)
       // router.navigate(`/workout/start_workout${id}`)
       // router.push({ pathname: "/workout/start_workout[id]", params: { id: 1 } });
       // router.push(`workout/start_workout/${id}`)
