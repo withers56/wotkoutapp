@@ -137,7 +137,7 @@ export function exercisesInitInsert() {
 
 export function getWorkoutInfoById(id) {
   return `
-      SELECT w.id, w.start_time, w.end_time, s.weight, s.reps, e.name 
+      SELECT w.id, w.start_time, w.end_time, s.weight, s.reps, s.exercise_id, e.name 
       FROM workouts AS w 
       LEFT OUTER JOIN sets AS s ON w.id = s.workout_id 
       LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id
@@ -151,6 +151,34 @@ export function getAllWorkoutInfo() {
       FROM workouts AS w 
       LEFT OUTER JOIN sets AS s ON w.id = s.workout_id 
       LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id;
+  `
+}
+
+export function getExercisePB(exerciseid) {
+  return `
+  SELECT weight, exercise_id 
+  FROM sets 
+  WHERE exercise_id = ${exerciseid} 
+  ORDER BY weight 
+  DESC LIMIT 1;
+  `
+}
+
+// export function getExercisePBbyName(exerciseName) {
+//   return `
+//   SELECT weight, exercise_id 
+//   FROM sets 
+//   WHERE exercise_id = ${exerciseid} 
+//   ORDER BY weight 
+//   DESC LIMIT 1;
+//   `
+// }
+
+export function getExerciseIdByName(name) {
+  return `
+  SELECT id
+  FROM exercises
+  WHERE name = '${name}';
   `
 }
 

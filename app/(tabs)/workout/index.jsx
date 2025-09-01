@@ -3,11 +3,10 @@ import { useCallback, useContext, useState } from 'react';
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { List } from 'react-native-paper';
 
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { getAllWorkoutInfo, getAllWorkoutInfoById, getWorkoutInfoById } from "../../../db/dbstatments";
+import { getExerciseIdByName, getExercisePB, getWorkoutInfoById } from "../../../db/dbstatments";
 
 
 
@@ -31,6 +30,18 @@ export default function Workout() {
     const loadHistory = async () => {
       const result = await db.getAllAsync("SELECT * FROM workouts ORDER BY id DESC");
       const sets = await db.getAllAsync("SELECT * FROM sets");
+
+      // console.log();
+      const pb = await db.getAllAsync(getExercisePB(87))
+
+      console.log(pb);
+
+      console.log(await db.getAllAsync(getExerciseIdByName('Bench Press')));
+      
+      
+      
+      // console.log(await db.getAllAsync("SELECT id, name FROM exercises WHERE name = 'Bench Press'"));
+      
 
       // const ws = await db.getAllAsync("SELECT * FROM workout_sets");
 

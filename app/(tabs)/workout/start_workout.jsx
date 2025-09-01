@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { ThemeContext } from "@/context/ThemeContext";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ThemeText from "../../../context/ThemeText";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -344,7 +344,8 @@ const start_workout = () => {
                         month: 'long',
                         day: 'numeric',
                         hour: '2-digit',
-                        minute: '2-digit'
+                        minute: '2-digit',
+                        second: '2-digit'
                     })
         
         console.log('workout to submit: ');

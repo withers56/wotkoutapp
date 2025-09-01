@@ -1,15 +1,12 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { ThemeContext } from "@/context/ThemeContext";
-import { useCallback, useContext, useEffect, useState, useLayoutEffect } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { SafeAreaView } from "react-native-safe-area-context";
-import { List } from 'react-native-paper';
 import { useNavigation } from "@react-navigation/native";
+import { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
-import { useFocusEffect, useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import * as SQLite from 'expo-sqlite';
-import { getAllWorkoutInfo, getAllWorkoutInfoById, getWorkoutInfoById } from "../../../../db/dbstatments";
+import { getExercisePB, getWorkoutInfoById } from "../../../../db/dbstatments";
 
 const view_workout = () => {
     const { id } = useLocalSearchParams();
@@ -21,10 +18,13 @@ const view_workout = () => {
   
   
     const [workout, setWorkout] = useState([]);
+    const [exerciseNames, setExerciseNames] = useState([]);
     const [volume, setVolume] = useState(0);
+    const [pbs, setPbs] = useState([]);
     const [setCount, setSetCount] = useState(0);
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [time, setTime] = useState(0);
 
     useLayoutEffect(() => {
       navigation.setOptions({
@@ -34,24 +34,62 @@ const view_workout = () => {
 
     useEffect(()=>{
       getWorkout();
+      console.log(exerciseNames);
+      
     }, [])
+
+    
+
+
+    const spliceTime = (time) => {
+          let splitTime = time.split(' ')
+          let splicedData = splitTime[splitTime.length - 1]
+          let splitAMPM = splicedData.replaceAll("PM","").replaceAll("AM", "");
+          let hourMinuteSeconds = splitAMPM.split(':')
+
+          let startSecondHolder = 0;
+
+          for (let index = 0; index < hourMinuteSeconds.length; index++) {
+            
+            switch (index) {
+              case 0: startSecondHolder = startSecondHolder + (parseInt(hourMinuteSeconds[index]) * 3600);
+                break;
+              case 1: startSecondHolder = startSecondHolder + (parseInt(hourMinuteSeconds[index]) * 60)  
+                break;
+              case 2: startSecondHolder = startSecondHolder + (parseInt(hourMinuteSeconds[index]))
+                break;
+              default: return 
+            }
+          }
+
+          return startSecondHolder;
+    }
 
     const getWorkout = async () => {
       let volumeTracker = 0;
       let setTracker = 0;
+      let pbTracker = [];
+      let idTracker = [];
+      let time = 0;
       const workoutMap = new Map();
       const workoutData = await db.getAllAsync(getWorkoutInfoById(id));
       
       workoutData.map(data => {
+
+        if (!idTracker.includes(data.exercise_id)) {
+          idTracker.push(data.exercise_id)
+        }
+
         console.log(data);
 
-        //set start and end time states
-        if (startTime === '' || endTime === '') {
-          setStartTime(data.start_time)
-          setEndTime(data.end_time);
+        // console.log(db.getAllAsync(getExercisePB(data.id)));
+        
 
-          console.log('time: ' + new Date(data.start_time));
-          
+        //set start and end time states
+        if (time === 0) {
+                
+          time = (spliceTime(data.end_time) - spliceTime(data.start_time)) * 1000;
+          setTime(time);      
         }
         
         if (!workoutMap.has(data.name)) {
@@ -70,8 +108,39 @@ const view_workout = () => {
         }
       })
 
-      for (const [key, value] of workoutMap) {
+      //get exercise pbs by thewir ids in idTracker
+
+
+
+      let pbArray = []
+      for (let index = 0; index < idTracker.length; index++) {
+        const pb = await db.getFirstAsync(getExercisePB(parseInt(parseInt(idTracker[index]))));
+        pbArray.push(pb.weight);
+        console.log(pb.weight);
         
+      }
+
+      console.log(idTracker)
+      
+      let nameArray = [];
+
+      for (const [key, value] of workoutMap) {
+
+        console.log('key: ' + key);
+        
+        nameArray.push(key);
+        // const exerciseId = await db.getFirstAsync(getExerciseIdByName(key))
+        // const exercisePb = await db.getAllAsync(getExercisePB(parseInt(exerciseId.id)))
+
+        // // console.log('before info');
+        
+        // console.log('exerciseId: ' + parseInt(exerciseId.id));
+        // console.log('exercisepb: ' + exercisePb);
+        
+        
+
+        // pbTracker.push(exercisePb);
+
         let exerciseObjectToAdd = {
           name: '',
           sets: []
@@ -81,8 +150,8 @@ const view_workout = () => {
         exerciseObjectToAdd.name = key;
 
         value.map(set => {
-          console.log(set.weight);
-          console.log(set.reps);
+          // console.log(set.weight);
+          // console.log(set.reps);
 
           setTracker = setTracker + 1;
           volumeTracker = volumeTracker + (set.weight * set.reps)
@@ -91,6 +160,10 @@ const view_workout = () => {
         })
 
         exerciseObjectToAdd.sets = setsToadd;
+        // console.log('pb tracker: ' + pbTracker);
+        
+        setPbs(pbArray);
+        setExerciseNames(nameArray);
         setWorkout(prev => [...prev, {name: exerciseObjectToAdd.name, sets: exerciseObjectToAdd.sets}])
         setVolume(volumeTracker);
         setSetCount(setTracker);
@@ -127,9 +200,12 @@ const view_workout = () => {
       // </View>
     )
 
-    const renderWorkout = ({item}) => (
+    const renderWorkout = ({item, index}) => (
       <View>
-        <Text style={[styles.text, {fontSize: 24}]}>{item.name}</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text style={[styles.text, {fontSize: 24}]}>{item.name}</Text>
+          <Text style={[styles.text, {fontSize: 24}]}>PB: {pbs[index]}</Text>
+        </View>
           <View style={[styles.exerciseData, styles.bottomBorder]}>
             <Text style={[styles.text, styles.gridItem]}>Set</Text>
             <Text style={[styles.text, styles.gridItem]}>Lbs</Text>
@@ -158,7 +234,7 @@ const view_workout = () => {
                     </View>
                     <View>
                         <Text style={styles.text}>Time</Text>
-                        <Text style={styles.text}>{(new Date(startTime) - new Date(endTime))}</Text>
+                        <Text style={styles.text}>{new Date(time).toISOString().substring(14, 19)}</Text>
                     </View>
                 </View>
 
