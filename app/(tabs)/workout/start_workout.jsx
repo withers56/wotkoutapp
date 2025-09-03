@@ -506,6 +506,7 @@ const start_workout = () => {
                 
                     <Animated.FlatList 
                         data={exercises}
+                        keyboardShouldPersistTaps='handled'
                         renderItem={renderExercise}
                         keyExtractor={data => data.id}
                         ListFooterComponent={renderFooter}/>

@@ -204,7 +204,7 @@ const view_workout = () => {
       <View>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={[styles.text, {fontSize: 24}]}>{item.name}</Text>
-          <Text style={[styles.text, {fontSize: 24}]}>PB: {pbs[index]}</Text>
+          <Text style={[styles.text, {fontSize: 24}]}>1RM: {pbs[index]}</Text>
         </View>
           <View style={[styles.exerciseData, styles.bottomBorder]}>
             <Text style={[styles.text, styles.gridItem]}>Set</Text>
@@ -241,6 +241,7 @@ const view_workout = () => {
         <View style={styles.exerciseContainer}>
           <FlatList 
               data={workout}
+              showsVerticalScrollIndicator={false}
               renderItem={renderWorkout}
               keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}/>
 

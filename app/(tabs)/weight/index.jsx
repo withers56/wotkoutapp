@@ -1,7 +1,12 @@
 import { ThemeProvider, ThemeContext } from '@/context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { React, useState, useContext, useEffect} from 'react'
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList } from 'react-native'
+import { React, useState, useContext, useEffect, useCallback} from 'react'
+import { Text, View, TextInput, Pressable, StyleSheet, FlatList, TouchableOpacity } from 'react-native'
+import { useSQLiteContext } from 'expo-sqlite';
+import { useFocusEffect, useRouter } from 'expo-router';
+import Animated from 'react-native-reanimated';
+
+
 // import { Image } from 'expo-image';
 // import { HelloWave } from '@/components/HelloWave';
 // import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -15,58 +20,77 @@ export default function HomeScreen() {
   const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
   const styles = createStyles(theme, colorScheme)
 
+  const [entries, setEntries] = useState([]);
+
+  const router = useRouter();
+
+  const db = useSQLiteContext();
+
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+  
+
+  useEffect(() => {
+    loadWeightHistory();
+  }, [])    
+
+  const loadWeightHistory = async () => {
+    // await db.runAsync('INSERT INTO weight (body_weight, unit_of_measure, date) VALUES (?,?,?)',
+    //     [300.00, 'lbs', new Date() + '']);    
+    const result = await db.getAllAsync('SELECT id, body_weight, unit_of_measure, date FROM weight');
+   
+    setEntries(result);
+  }
+
+  const handleSubmit = () => {
+    console.log('clicked submit'); 
+    router.navigate('/weight/log_weight')
+  }
+
+  const renderListItem = ({ item }) => (
+        
+          <TouchableOpacity
+            // onPress={() => {handleWorkoutPress(item.id)}}
+            >
+            <View style={styles.weightItem}>
+              <View>
+                <Text style={styles.weightText}>{monthNames[new Date(item.date).getMonth()]} {new Date(item.date).getDate()}, {new Date(item.date).getFullYear()}</Text>
+                <Text style={styles.weightText}>{item.body_weight} {item.unit_of_measure}</Text>
+              </View>
+              {/* <View>
+                <Pressable 
+                  style={styles.button}
+                  onPress={() => {handleDelete(item.id)}}>
+                  <Text>Delete</Text>
+                </Pressable>  
+              </View> */}
+            </View>
+          </TouchableOpacity>
+       
+  
+      )
+
   return (
 
-      <SafeAreaView style={styles.container}>
-        <View>
-          <Text style={styles.text}>weight</Text>
-        </View>
-      </SafeAreaView>
+    <SafeAreaView style={styles.container}>
+                <View>
+                    <Pressable
+                      style={styles.startButton}
+                      onPress={handleSubmit}>
+                      <Text style={styles.buttonText}>Enter Weight</Text>    
+                    </Pressable>
+                    
+                </View>
+                <Animated.FlatList
+                  data={entries}
+                  renderItem={renderListItem}
+                  keyExtractor={data => data.id} />
+    
+                
+            </SafeAreaView>
 
-    // <ParallaxScrollView
-    //   headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    //   headerImage={
-    //     <Image
-    //       source={require('@/assets/images/partial-react-logo.png')}
-    //       style={styles.reactLogo}
-    //     />
-    //   }>
-    //   <ThemedView style={styles.titleContainer}>
-    //     <ThemedText type="title">Welcome hi!</ThemedText>
-    //     <HelloWave />
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-    //     <ThemedText>
-    //       Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-    //       Press{' '}
-    //       <ThemedText type="defaultSemiBold">
-    //         {Platform.select({
-    //           ios: 'cmd + d',
-    //           android: 'cmd + m',
-    //           web: 'F12',
-    //         })}
-    //       </ThemedText>{' '}
-    //       to open developer tools.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-    //     <ThemedText>
-    //       {`Tap the Explore tab to learn more about what's included in this starter app.`}
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       {`When you're ready, run `}
-    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    // </ParallaxScrollView>
   );
 }
 
@@ -79,6 +103,47 @@ function createStyles(theme, colorScheme) {
     },
     text: {
       color: theme.text
+    },
+    startButton: {
+      marginHorizontal: 'auto',
+      height: 60,
+      width: 250,
+      borderRadius: 20,
+      justifyContent: 'center',
+      backgroundColor: theme.tabIconSelected,
+      padding: 6,
+      marginBottom: 15,
+      marginTop: 15
+    },
+    button: {
+      backgroundColor: theme.tabIconSelected,
+      borderRadius: 20,
+      padding: 6,
+    },
+    buttonText: {
+      color: 'black',
+      justifyContent: 'center',
+      marginHorizontal: 'auto',
+      fontSize: 28
+    },
+    weightItem: {
+      flexDirection: 'row',
+      // alignItems: 'center',
+      justifyContent: 'space-between',
+      // gap: 4,
+      padding: 10,
+      borderBottomColor: 'gray',
+      borderBottomWidth: 1,
+      width: '100%',
+      maxWidth: 1024,
+      marginHorizontal: 'auto',
+      pointerEvents: 'auto',
+    },
+    weightText: {
+      // flex: 1,
+      fontSize: 18,
+      fontFamily: 'Inter_500Medium',
+      color: theme.text,
     }
   })
 }

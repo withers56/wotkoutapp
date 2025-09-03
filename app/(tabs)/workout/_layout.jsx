@@ -36,6 +36,7 @@ const StackLayout = () => {
                     title: 'My Workout',
                     headerShown: true,
                     headerTintColor: theme.color,
+                    headerBackTitle: 'Home',
                     headerStyle: {
                         backgroundColor: theme.background,
                         

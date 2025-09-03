@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getExerciseIdByName, getExercisePB, getWorkoutInfoById } from "../../../db/dbstatments";
+import { Swipeable } from "react-native-gesture-handler";
 
 
 
@@ -34,9 +35,7 @@ export default function Workout() {
       // console.log();
       const pb = await db.getAllAsync(getExercisePB(87))
 
-      console.log(pb);
-
-      console.log(await db.getAllAsync(getExerciseIdByName('Bench Press')));
+     
       
       
       
@@ -247,25 +246,46 @@ export default function Workout() {
       // router.push({ pathname: "/workout/start_workout[id]", params: { id: 1 } });
       // router.push(`workout/start_workout/${id}`)
     }
+    const renderSwipeRightActions = (item) => {
+      return (
+        <TouchableOpacity
+          style={{
+            backgroundColor: theme.danger,
+            borderBottomColor: 'gray',
+            borderBottomWidth: 1,
+            flexDirection: 'row',
+            alignItems:'center',
+            paddingHorizontal: 5
+            
+          }}
+          onPress={() => handleDelete(item.id)}>
+          <Text>DELETE</Text>
+        </TouchableOpacity>
+      )
+    }
 
     const renderListItem = ({ item }) => (
-      <TouchableOpacity
-        onPress={() => {handleWorkoutPress(item.id)}}>
-        <View style={styles.workoutItem}>
-          {/* <Text style={styles.workoutText}>{item.name}</Text> */}
-          <View>
-            <Text style={styles.workoutText}>{item.start_time}</Text>
-            {/* <Text style={styles.workoutText}>{item.end_time}</Text> */}
+      <Swipeable
+        renderRightActions={() => renderSwipeRightActions(item)}>
+        <TouchableOpacity
+          onPress={() => {handleWorkoutPress(item.id)}}>
+          <View style={styles.workoutItem}>
+            {/* <Text style={styles.workoutText}>{item.name}</Text> */}
+            <View>
+              <Text style={styles.workoutText}>{item.start_time}</Text>
+              {/* <Text style={styles.workoutText}>{item.end_time}</Text> */}
+            </View>
+            {/* <View>
+              <Pressable 
+                style={styles.button}
+                onPress={() => {handleDelete(item.id)}}>
+                <Text>Delete</Text>
+              </Pressable>  
+            </View> */}
           </View>
-          <View>
-            <Pressable 
-              style={styles.button}
-              onPress={() => {handleDelete(item.id)}}>
-              <Text>Delete</Text>
-            </Pressable>  
-          </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </Swipeable>
+
     )
 
     return (

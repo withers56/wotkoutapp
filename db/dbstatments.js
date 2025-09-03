@@ -1,3 +1,48 @@
+export const DEFAULT_FOODS = [
+  {
+    name: "Chicken Breast",
+    servingSize: "100g",
+    protein: 31,
+    carbs: 0,
+    fat: 3.6,
+    calories: 165
+  },
+  {
+    name: "Brown Rice",
+    servingSize: "100g (cooked)",
+    protein: 2.6,
+    carbs: 23,
+    fat: 0.9,
+    calories: 111
+  },
+  {
+    name: "Broccoli",
+    servingSize: "100g (raw)",
+    protein: 2.8,
+    carbs: 6.6,
+    fat: 0.3,
+    calories: 55
+  },
+  {
+    name: "Avocado",
+    servingSize: "100g",
+    protein: 2,
+    carbs: 9,
+    fat: 15,
+    calories: 160
+  },
+  {
+    name: "Salmon",
+    servingSize: "100g",
+    protein: 20,
+    carbs: 0,
+    fat: 13,
+    calories: 208
+  }
+];
+
+
+
 export const DEFAULT_EXERCISES = [
   { name: "Push-Up" },
   { name: "Pull-Up" },
@@ -122,6 +167,15 @@ export default function dbInit() {
         FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE,
         FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE
         );
+
+
+      CREATE TABLE IF NOT EXISTS weight (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        body_weight REAL,
+        unit_of_measure TEXT,
+        date TEXT
+        );
+
 
     
     

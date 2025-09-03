@@ -4,13 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { ThemeProvider } from "../context/ThemeContext";
 import dbInit, { DEFAULT_EXERCISES } from '../db/dbstatments';
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 // import { SQLiteProvider } from 'expo-sqlite';
 import * as SQLite from 'expo-sqlite'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export const dbName = 'estnewv8.db';
+export const dbName = 'estnewv9.db';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -63,7 +64,7 @@ export default function RootLayout() {
   }
 
   return (
-   
+   <GestureHandlerRootView style={{flex: 1}}>
       <ThemeProvider>
         <SafeAreaProvider>
           <SQLite.SQLiteProvider databaseName={dbName} onInit={createDbIfNeeded}>
@@ -75,5 +76,6 @@ export default function RootLayout() {
           <StatusBar style="auto" />
         </SafeAreaProvider>    
       </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
