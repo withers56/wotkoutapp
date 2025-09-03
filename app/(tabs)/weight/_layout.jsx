@@ -19,6 +19,7 @@ const StackLayout = () => {
                 options={{
                     title: 'Weight',
                     headerShown: true,
+                    headerBackTitle: 'Home',
                     headerTintColor: theme.color,
                     headerStyle: {
                         backgroundColor: theme.background,

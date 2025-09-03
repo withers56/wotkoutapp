@@ -1,41 +1,111 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { ThemeProvider, ThemeContext } from '@/context/ThemeContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { React, useState, useContext, useEffect, useCallback} from 'react'
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, TouchableOpacity, Button, Platform } from 'react-native'
-import { useSQLiteContext } from 'expo-sqlite';
-import { useFocusEffect, useRouter } from 'expo-router';
-import Animated from 'react-native-reanimated';
+import { ThemeContext } from '@/context/ThemeContext';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useNavigation } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+
+import { React, useContext, useEffect, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+
 
 const log_weight = () => {
+    const [count, setCount] = useState(0);
     const [currentWeight, setCurrentWeight] = useState(0);
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(true);
+    const [uoa, setUOA] = useState('Lbs');
+    const [recentWeight, setRecentWeight] = useState(0);
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
-    const styles = createStyles(theme, colorScheme)
+    const styles = createStyles(theme, colorScheme);
+    const db = useSQLiteContext();
+    const navigation = useNavigation();
+    const router = useRouter();
 
     const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    console.log(Platform.OS);
-    
-    setShow(Platform.OS === 'ios'); // Hide picker on iOS after selection
-    setDate(currentDate);
-  };
+      const currentDate = selectedDate
+      console.log(new Date(selectedDate));
+      
+      console.log(Platform.OS);
+      
+      setShow(Platform.OS === 'ios'); // Hide picker on iOS after selection
+      setDate(selectedDate);
+    };
 
-  
+   useEffect(() => {
+        navigation.setOptions({
+          headerRight: () => (
+            <Pressable
+              style={{padding: 5}}
+              onPress={handleSubmit}
+            >
+              <AntDesign name="check" size={24} color={theme.text} />
+            </Pressable>
+          ),
+          headerLeft: () => (
+            <Pressable
+              style={{padding: 5}}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)              
+                router.back()
+              }}
+            >
+              <AntDesign name="close" size={24} color={theme.text} />
+            </Pressable>
+          ),
+        });
+    }, [navigation, currentWeight, uoa, date]); 
+
+    useEffect(()=>{
+      loadData()
+    }, []);
+
+  const loadData = async () => {
+    console.log('in loadData');
+    
+    const result = await db.getFirstAsync('SELECT body_weight, unit_of_measure FROM weight ORDER BY date DESC LIMIT 1');
+
+    console.log(result);
+
+    setRecentWeight(result.body_weight);
+    setUOA(result.unit_of_measure);
+  }
+
+  const handleSubmit = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)              
+    console.log('submit workout');
+    // console.log(date);
+        
+    const weightToSubmit = {
+      body_weight: currentWeight,
+      unit_of_measure: uoa,
+      date: date.toISOString()
+    }
+
+    console.log(weightToSubmit);
+    
+
+    await db.runAsync('INSERT INTO weight (body_weight, unit_of_measure, date) VALUES (?, ?, ?)',
+                [weightToSubmit.body_weight, weightToSubmit.unit_of_measure, weightToSubmit.date]
+    )
+      
+    router.back();
+  }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
         <View style={styles.weightItem}>
             <Text style={styles.text}>Log Weight</Text>
             <View style={{flexDirection: 'row', alignItems:'center'}}>
                 <TextInput
+                style={[styles.text, styles.input, {textAlign: 'right'}]}
                 keyboardType='numeric'
                 value={currentWeight}
-                onChangeText={(value) => {setCurrentWeight(value)}}
-                placeholder='0'/>
-                <Text style={styles.text}> Lbs</Text>
+                onChangeText={value => setCurrentWeight(value)}
+                placeholder={recentWeight + ''}/>
+                <Text style={styles.text}> {uoa}</Text>
             </View>
             
         </View>
@@ -51,8 +121,7 @@ const log_weight = () => {
             />)}
     
         </View>
-        
-    </View>
+    </ScrollView>
   )
 }
 
@@ -66,6 +135,9 @@ function createStyles(theme, colorScheme) {
     text: {
       color: theme.text,
       fontSize: 18
+    },
+    input: {
+      width: 100
     },
     startButton: {
       marginHorizontal: 'auto',

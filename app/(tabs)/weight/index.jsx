@@ -1,10 +1,10 @@
-import { ThemeProvider, ThemeContext } from '@/context/ThemeContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { React, useState, useContext, useEffect, useCallback} from 'react'
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, TouchableOpacity } from 'react-native'
-import { useSQLiteContext } from 'expo-sqlite';
+import { ThemeContext } from '@/context/ThemeContext';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { React, useCallback, useContext, useState } from 'react';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 // import { Image } from 'expo-image';
@@ -32,14 +32,21 @@ export default function HomeScreen() {
 
   
 
-  useEffect(() => {
-    loadWeightHistory();
-  }, [])    
+  // useEffect(() => {
+  //   loadWeightHistory();
+  // }, [])    
+
+  useFocusEffect(
+        useCallback(() => {
+          loadWeightHistory();
+        }, [])
+      )
 
   const loadWeightHistory = async () => {
     // await db.runAsync('INSERT INTO weight (body_weight, unit_of_measure, date) VALUES (?,?,?)',
-    //     [300.00, 'lbs', new Date() + '']);    
-    const result = await db.getAllAsync('SELECT id, body_weight, unit_of_measure, date FROM weight');
+    //     [297.7, 'lbs', new Date() + '']);    
+    const result = await db.getAllAsync('SELECT id, body_weight, unit_of_measure, date FROM weight ORDER BY date DESC');
+   console.log(result);
    
     setEntries(result);
   }
@@ -48,6 +55,15 @@ export default function HomeScreen() {
     console.log('clicked submit'); 
     router.navigate('/weight/log_weight')
   }
+
+  const handleDelete = async (id) => {
+      try {
+        await db.runAsync("DELETE FROM weight WHERE id = ?;", [id]);
+        loadWeightHistory()
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
   const renderListItem = ({ item }) => (
         
@@ -59,13 +75,13 @@ export default function HomeScreen() {
                 <Text style={styles.weightText}>{monthNames[new Date(item.date).getMonth()]} {new Date(item.date).getDate()}, {new Date(item.date).getFullYear()}</Text>
                 <Text style={styles.weightText}>{item.body_weight} {item.unit_of_measure}</Text>
               </View>
-              {/* <View>
+              <View>
                 <Pressable 
                   style={styles.button}
                   onPress={() => {handleDelete(item.id)}}>
                   <Text>Delete</Text>
                 </Pressable>  
-              </View> */}
+              </View>
             </View>
           </TouchableOpacity>
        
