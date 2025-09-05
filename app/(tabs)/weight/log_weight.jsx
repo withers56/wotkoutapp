@@ -13,7 +13,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } fr
 
 const log_weight = () => {
     const [count, setCount] = useState(0);
-    const [currentWeight, setCurrentWeight] = useState(0);
+    const [currentWeight, setCurrentWeight] = useState(0.0);
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(true);
     const [uoa, setUOA] = useState('Lbs');
@@ -101,9 +101,9 @@ const log_weight = () => {
             <View style={{flexDirection: 'row', alignItems:'center'}}>
                 <TextInput
                 style={[styles.text, styles.input, {textAlign: 'right'}]}
-                keyboardType='numeric'
+                keyboardType='decimal-pad'
                 value={currentWeight}
-                onChangeText={value => setCurrentWeight(value)}
+                onChangeText={value => setCurrentWeight(Math.round(value * 10) / 10 )}
                 placeholder={recentWeight + ''}/>
                 <Text style={styles.text}> {uoa}</Text>
             </View>

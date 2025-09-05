@@ -56,6 +56,13 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => <MaterialCommunityIcons name="food-apple" size={24} color={color} />,
           }}
         />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ color }) => <MaterialCommunityIcons name="cog" size={24} color={color} />,
+          }}
+        />
       </Tabs>
     </ThemeProvider>
   );
