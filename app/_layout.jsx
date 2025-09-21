@@ -1,17 +1,17 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { ThemeProvider } from "../context/ThemeContext";
 import dbInit, { DEFAULT_EXERCISES } from '../db/dbstatments';
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 // import { SQLiteProvider } from 'expo-sqlite';
-import * as SQLite from 'expo-sqlite'
+import * as SQLite from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export const dbName = 'estnewv9.db';
+export const dbName = 'estnewv11.db';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -48,8 +48,8 @@ export default function RootLayout() {
       // await db.execAsync(exercisesInitInsert());
       DEFAULT_EXERCISES.forEach(item => {
         db.runAsync(
-          'INSERT INTO exercises (name) VALUES (?)',
-          item.name
+          'INSERT INTO exercises (id, name) VALUES (?,?)',
+          [item.id, item.name]
         );
 
           // console.log(item.name);

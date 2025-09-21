@@ -18,6 +18,7 @@ const view_workout = () => {
   
   
     const [workout, setWorkout] = useState([]);
+    const [workoutName, setWorkoutName] = useState('');
     const [exerciseNames, setExerciseNames] = useState([]);
     const [volume, setVolume] = useState(0);
     const [pbs, setPbs] = useState([]);
@@ -28,9 +29,9 @@ const view_workout = () => {
 
     useLayoutEffect(() => {
       navigation.setOptions({
-        title: 'My Workout #' + id // Update the header title
+        title: workoutName // Update the header title
       });
-    }, [navigation]);
+    }, [navigation, workoutName]);
 
     useEffect(()=>{
       getWorkout();
@@ -73,6 +74,9 @@ const view_workout = () => {
       let time = 0;
       const workoutMap = new Map();
       const workoutData = await db.getAllAsync(getWorkoutInfoById(id));
+      setWorkoutName(workoutData.wName);
+      // console.log(workoutData.wName);
+      
       
       workoutData.map(data => {
 
@@ -80,7 +84,8 @@ const view_workout = () => {
           idTracker.push(data.exercise_id)
         }
 
-        console.log(data);
+        console.log('mapData: ' + data.wName);
+        setWorkoutName(data.wName)
 
         // console.log(db.getAllAsync(getExercisePB(data.id)));
         

@@ -121,7 +121,7 @@ const start_workout = () => {
     }   
 
     const handleExerciseSelection = (exercise) => {
-        console.log('Selected: ' + exercise.name);
+        console.log('Selected: ' + exercise.name + 'id: ' + exercise.id);
 
         if (currentExerciseId === '') {
             setPrevExeciseId(exercise.id)
@@ -286,7 +286,7 @@ const start_workout = () => {
                         {/* <ThemeText>-</ThemeText> */}
                         <View style={styles.gridItem}>
                             <TextInput
-                            style={[styles.input]}
+                            style={[styles.input, styles.text, {fontSize: 16}]}
                             keyboardType="numeric" 
                             value={currentSet.weight}
                             onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
@@ -294,7 +294,7 @@ const start_workout = () => {
                         </View>
                         <View style={styles.gridItem}>
                             <TextInput
-                            style={styles.input}
+                            style={[styles.input, styles.text, {fontSize: 16}]}
                             keyboardType="numeric"
                             value={currentSet.reps}
                             onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
@@ -472,11 +472,21 @@ const start_workout = () => {
         setExerciseListFiltered(newData);
     }
 
+    const handleNameChange = () => {
+        console.log('changed name');
+        
+    }
+
 
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.headingContainer}>
-            <ThemeText style={styles.text}>{currentWorkout.name}</ThemeText>
+            {/* <Text style={styles.text} onPress={handleNameChange}>{currentWorkout.name}</Text> */}
+            <TextInput
+                style={styles.text}
+                onChangeText={(value) => {setCurrentWorkout((prevData) => ({...prevData, name: value}))}}
+                value={currentWorkout.name}    
+                />
             {/* <ThemeText style={styles.text}>{currentWorkout.start_time}</ThemeText> */}
             <Pressable 
                 style={styles.finishButton}
