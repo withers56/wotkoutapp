@@ -14,6 +14,8 @@ import { dbName } from "../../_layout";
 
 const start_workout = () => {
     const [modalVisible, setModalVisible] = useState(false);
+    const [newExerciseModalVisible, setNewExerciseModalVisible] = useState(false);
+
     const [currentWorkout, setCurrentWorkout] = useState({
         name: 'My Workout',
         start_time: new Date(Date.now()).toLocaleString('en-US', {
@@ -33,6 +35,7 @@ const start_workout = () => {
         name: '',
         sets: []
     }]);
+    const [newExercise, setNewExercise] = useState('');
     const [exerciseList, setExerciseList] = useState([]);
     const [exerciseListFiltered, setExerciseListFiltered] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -398,48 +401,7 @@ const start_workout = () => {
                 
                     router.back()
             })
-        ])
-
-
-
-        // try {
-        //     dbTrans.transaction(tx => {
-        //         tx.executeSql("INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
-        //             [workoutToSubmit.name, workoutToSubmit.start_time, workoutToSubmit.end_time],
-        //             (transaction, resultset) => {
-        //                 const newRowId = resultSet.insertId;
-        //                 console.log('New row ID:', newRowId);
-        //             },
-        //             (transaction, error) => {
-        //                 console.error('Error inserting data:', error);
-        //                 return true; 
-        //             })
-        //     })
-
-        //     // await db.runAsync("INSERT INTO workouts (name, start_time, end_time) VALUES (?, ?, ?)",
-        //     //         [workoutToSubmit.name, workoutToSubmit.start_time, workoutToSubmit.end_time]
-        //     // )
-
-        //     for (let index = 0; index < setsToSubmit.length; index++) {
-        //         const set = setsToSubmit[index];
-                
-        //         const id = await db.runAsync('INSERT INTO sets (reps, weight, exercise_id) VALUES (?, ?, ?)',
-        //             [set.reps, set.weight, set.exerciseId]);
-
-        //         console.log(id);
-                    
-        //     }
-
-
-
-
-        //     router.back()
-            
-        // } catch (e) {
-        //     console.error(e);
-            
-        // }
-        
+        ])  
     }
 
     const renderFooter = () => {
@@ -485,7 +447,8 @@ const start_workout = () => {
             <TextInput
                 style={styles.text}
                 onChangeText={(value) => {setCurrentWorkout((prevData) => ({...prevData, name: value}))}}
-                value={currentWorkout.name}    
+                value={currentWorkout.name}
+                maxLength={30}    
                 />
             {/* <ThemeText style={styles.text}>{currentWorkout.start_time}</ThemeText> */}
             <Pressable 
@@ -548,7 +511,8 @@ const start_workout = () => {
                             // style={[styles.button, styles.buttonClose]}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                setModalVisible(!modalVisible)}}>
+                                setModalVisible(!modalVisible)
+                                setNewExerciseModalVisible(!newExerciseModalVisible)}}>
                             <Text style={styles.text}>Add</Text>
                         </Pressable>
                     </View>
@@ -568,6 +532,44 @@ const start_workout = () => {
                 </View>
             </View>
           </Modal>
+
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={newExerciseModalVisible}
+            onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+                setModalVisible(!newExerciseModalVisible);
+            }}>
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <View style={styles.modalButtons}>
+                        <Pressable
+                            // style={[styles.button, styles.buttonClose]}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setNewExerciseModalVisible(!newExerciseModalVisible)
+                                setModalVisible(!modalVisible)}}>
+                            <Text style={styles.text}>
+                                <FontAwesome name="close" size={32} color={theme.color} />
+                            </Text>
+                        </Pressable>    
+                        <Pressable
+                            // style={[styles.button, styles.buttonClose]}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                console.log('insert method to add new exercise here');
+                                setNewExerciseModalVisible(!newExerciseModalVisible)
+                                setModalVisible(!modalVisible)
+                                }}>
+                            <Text style={styles.text}>Add</Text>
+                        </Pressable>
+                    </View>
+                        <Text>in modal</Text>
+                    </View>
+                </View>
+
+            </Modal>
 
     </SafeAreaView>
   )
