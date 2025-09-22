@@ -439,6 +439,18 @@ const start_workout = () => {
         
     }
 
+    const handleCreatingNewExercise = async () => {
+        const exerciseName = newExercise;
+        console.log('exercise to add: ' + exerciseName);
+        const result = await db.runAsync("INSERT INTO exercises (name) VALUES (?)", [newExercise]);
+
+        console.log(result);
+
+        loadExercises();
+        
+        
+    }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -558,14 +570,18 @@ const start_workout = () => {
                             // style={[styles.button, styles.buttonClose]}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                console.log('insert method to add new exercise here');
+                                handleCreatingNewExercise()
                                 setNewExerciseModalVisible(!newExerciseModalVisible)
                                 setModalVisible(!modalVisible)
                                 }}>
                             <Text style={styles.text}>Add</Text>
                         </Pressable>
                     </View>
-                        <Text>in modal</Text>
+                        <TextInput
+                            style={[styles.newExerciseInput, styles.text, {fontSize: 16}]}
+                            value={newExercise}
+                            placeholder="Enter new exercise name."
+                            onChangeText={(value) => setNewExercise(value)}/>
                     </View>
                 </View>
 
@@ -587,12 +603,19 @@ function createStyles(theme, colorScheme) {
       fontSize: 18
     },
     input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    width: '45%'
-  },
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        width: '45%'
+    },
+    newExerciseInput: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        width: '100%'
+    },
   searchInput: {
     height: 40,
     borderColor: 'gray',
