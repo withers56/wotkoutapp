@@ -1,7 +1,12 @@
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList } from 'react-native'
+import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, Animated, ScrollView, TouchableOpacity } from 'react-native'
 import { React, useState, useContext, useEffect} from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+
 
 // import { Collapsible } from '@/components/Collapsible';
 // import { ExternalLink } from '@/components/ExternalLink';
@@ -13,97 +18,184 @@ import { ThemeContext } from "@/context/ThemeContext";
 export default function TabTwoScreen() {
   const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
   const styles = createStyles(theme, colorScheme)
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+  const [calories, setCalories] = useState(0);
+  const [food, setFood] = useState([
+  { id: 1, name: 'Apple', calories: 52 },
+  { id: 2, name: 'Banana', calories: 89 },
+  { id: 3, name: 'Bread', calories: 265 },
+  { id: 4, name: 'Rice', calories: 130 },
+  { id: 5, name: 'Chicken Breast', calories: 165 },
+  { id: 6, name: 'Egg', calories: 155 },
+  { id: 7, name: 'Milk', calories: 42 },
+  { id: 8, name: 'Potato', calories: 77 },
+  { id: 9, name: 'Carrot', calories: 41 },
+  { id: 10, name: 'Broccoli', calories: 34 },
+  { id: 11, name: 'Tomato', calories: 18 },
+  { id: 12, name: 'Orange', calories: 47 },
+  { id: 13, name: 'Beef', calories: 250 },
+  { id: 14, name: 'Cheese', calories: 402 },
+  { id: 15, name: 'Butter', calories: 717 },
+  { id: 16, name: 'Pasta', calories: 131 },
+  { id: 17, name: 'Oats', calories: 389 },
+  { id: 18, name: 'Yogurt', calories: 61 },
+  { id: 19, name: 'Spinach', calories: 23 },
+  { id: 20, name: 'Lettuce', calories: 15 },
+  { id: 21, name: 'Strawberry', calories: 32 },
+  { id: 22, name: 'Grapes', calories: 69 },
+  { id: 23, name: 'Salmon', calories: 208 },
+  { id: 24, name: 'Tuna', calories: 132 },
+  { id: 25, name: 'Almonds', calories: 579 },
+  { id: 26, name: 'Peanut Butter', calories: 588 },
+  { id: 27, name: 'Avocado', calories: 160 },
+  { id: 28, name: 'Onion', calories: 40 },
+  { id: 29, name: 'Garlic', calories: 149 },
+  { id: 30, name: 'Corn', calories: 86 },
+  { id: 31, name: 'Beans', calories: 347 },
+  { id: 32, name: 'Lentils', calories: 116 },
+  { id: 33, name: 'Pork', calories: 242 },
+  { id: 34, name: 'Lamb', calories: 294 },
+  { id: 35, name: 'Turkey', calories: 135 },
+  { id: 36, name: 'Shrimp', calories: 99 },
+  { id: 37, name: 'Quinoa', calories: 120 },
+  { id: 38, name: 'Barley', calories: 123 },
+  { id: 39, name: 'Cucumber', calories: 16 },
+  { id: 40, name: 'Bell Pepper', calories: 26 },
+  { id: 41, name: 'Mushroom', calories: 22 },
+  { id: 42, name: 'Zucchini', calories: 17 },
+  { id: 43, name: 'Watermelon', calories: 30 },
+  { id: 44, name: 'Pineapple', calories: 50 },
+  { id: 45, name: 'Blueberry', calories: 57 },
+  { id: 46, name: 'Pear', calories: 57 },
+  { id: 47, name: 'Peach', calories: 39 },
+  { id: 48, name: 'Olive Oil', calories: 884 },
+  { id: 49, name: 'Honey', calories: 304 },
+  { id: 50, name: 'Sugar', calories: 387 }
+]);
+  const router = useRouter();
+  const db = useSQLiteContext();
+  
+
+ 
+  
+
+  const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setDate(currentDate);
+        setShow(false);
+  };
+  
+
+  const handleBack = () => {
+    console.log('clicked back');
+    setDate(new Date(date.setDate(date.getDate() - 1)));
+    setShow(false)
+  }
+
+  const handleForward = () => {
+    console.log('clicked forward');
+    setDate(new Date(date.setDate(date.getDate() + 1)));
+    setShow(false)
+  }
+
+  const handleDatePick = () => {
+    console.log(show);
+    
+    console.log('handle date selection');
+
+    handleCalendarToggle()
+    
+  }
+
+  const handleCalendarToggle = () => {
+    setShow(!show);
+  }
+
+  const handleAddFood = () => {
+    console.log('clicked add food');
+    router.navigate('/food/log_food')
+  }
+
+  const renderFoodList = ({ item }) => (
+      <TouchableOpacity>
+        
+              <View style={styles.workoutItem}>
+               
+                
+                  <Text style={styles.workoutText}>{item.name}</Text>
+                  <Text style={styles.workoutText}>{item.calories} cal</Text>
+                  
+                
+                
+              </View>
+      </TouchableOpacity>
+  )
+
+  const renderFooter = () => (
+    <View style={styles.footer}>
+      <Text style={styles.text}>Total Calories: </Text>
+    </View>
+  )
+  
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        <Text style={styles.text}>food</Text>
+      <View style={styles.dateContainer}>
+        <Pressable
+          style={styles.dateContainerButtons}
+          onPress={handleBack}>
+            <FontAwesome5 name="less-than" size={20} color={theme.color} />
+        </Pressable>  
+        <Pressable
+          style={styles.dateContainerButtons}
+          onPress={handleDatePick}>
+                  <Text style={[styles.text, styles.dateText]}>{date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'    
+                    })}</Text>
+        </Pressable>
+        <Pressable
+          style={styles.dateContainerButtons}
+          onPress={handleForward}>
+            <FontAwesome5 name="greater-than" size={20} color={theme.color} />
+        </Pressable>
+      </View>
+
+      <View style={styles.calendarContainer}>
+        {show && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode='date'
+              is24Hour={true}
+              display="inline" // or 'spinner', 'inline' (iOS 14+)
+              onChange={onChange}
+            />
+          )}
+
+      </View>
+      <View style={styles.addFoodContainer}>
+        <Pressable
+                  style={styles.startButton}
+                  onPress={handleAddFood}>
+                  <Text style={styles.buttonText}>Add Food</Text>    
+        </Pressable>
+      </View>
+      <View style={styles.foodEntryContainer}>
+          <Animated.FlatList
+            data={food}
+            renderItem={renderFoodList}
+            keyExtractor={data => data.id}
+            // ListFooterComponent={renderFooter}
+          />
+          <View style={styles.footer}>
+            <Text style={[styles.text, {paddingHorizontal: 10, fontSize: 20}]}>Total Calories: {calories}</Text>
+          </View>
       </View>
     </SafeAreaView>
-    // <ParallaxScrollView
-    //   headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-    //   headerImage={
-    //     <IconSymbol
-    //       size={310}
-    //       color="#808080"
-    //       name="chevron.left.forwardslash.chevron.right"
-    //       style={styles.headerImage}
-    //     />
-    //   }>
-    //   <ThemedView style={styles.titleContainer}>
-    //     <ThemedText type="title">Explore</ThemedText>
-    //   </ThemedView>
-    //   <ThemedText>This app includes example code to help you get started.</ThemedText>
-    //   <Collapsible title="File-based routing">
-    //     <ThemedText>
-    //       This app has two screens:{' '}
-    //       <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-    //       <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-    //     </ThemedText>
-    //     <ThemedText>
-    //       The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-    //       sets up the tab navigator.
-    //     </ThemedText>
-    //     <ExternalLink href="https://docs.expo.dev/router/introduction">
-    //       <ThemedText type="link">Learn more</ThemedText>
-    //     </ExternalLink>
-    //   </Collapsible>
-    //   <Collapsible title="Android, iOS, and web support">
-    //     <ThemedText>
-    //       You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-    //       <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-    //     </ThemedText>
-    //   </Collapsible>
-    //   <Collapsible title="Images">
-    //     <ThemedText>
-    //       For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-    //       <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-    //       different screen densities
-    //     </ThemedText>
-    //     <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-    //     <ExternalLink href="https://reactnative.dev/docs/images">
-    //       <ThemedText type="link">Learn more</ThemedText>
-    //     </ExternalLink>
-    //   </Collapsible>
-    //   <Collapsible title="Custom fonts">
-    //     <ThemedText>
-    //       Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-    //       <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-    //         custom fonts such as this one.
-    //       </ThemedText>
-    //     </ThemedText>
-    //     <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-    //       <ThemedText type="link">Learn more</ThemedText>
-    //     </ExternalLink>
-    //   </Collapsible>
-    //   <Collapsible title="Light and dark mode components">
-    //     <ThemedText>
-    //       This template has light and dark mode support. The{' '}
-    //       <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-    //       what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-    //     </ThemedText>
-    //     <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-    //       <ThemedText type="link">Learn more</ThemedText>
-    //     </ExternalLink>
-    //   </Collapsible>
-    //   <Collapsible title="Animations">
-    //     <ThemedText>
-    //       This template includes an example of an animated component. The{' '}
-    //       <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-    //       the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-    //       library to create a waving hand animation.
-    //     </ThemedText>
-    //     {Platform.select({
-    //       ios: (
-    //         <ThemedText>
-    //           The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-    //           component provides a parallax effect for the header image.
-    //         </ThemedText>
-    //       ),
-    //     })}
-    //   </Collapsible>
-    // </ParallaxScrollView>
-  );
+  )
 }
 
 function createStyles(theme, colorScheme) {
@@ -114,6 +206,74 @@ function createStyles(theme, colorScheme) {
     },
     text: {
       color: theme.text
+    },
+    dateText: {
+      fontSize: 24, width: '100%'
+    },
+    dateContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+    dateContainerButtons: {
+      paddingHorizontal: 20
+    },
+    calendarContainer: {
+      display:'flex',
+      justifyContent: 'center',
+      flexDirection: 'row'
+    },
+    startButton: {
+      marginHorizontal: 'auto',
+      height: 60,
+      width: 250,
+      borderRadius: 20,
+      justifyContent: 'center',
+      backgroundColor: theme.tabIconSelected,
+      padding: 6,
+      marginBottom: 15,
+      marginTop: 15
+    },
+    buttonText: {
+      color: 'black',
+      justifyContent: 'center',
+      marginHorizontal: 'auto',
+      fontSize: 28
+    },
+    addFoodContainer: {
+      borderBottomColor: 'gray',
+      borderBottomWidth: 1,
+    },
+    foodEntryContainer: {
+      flex: 1
+    },
+    footer: {
+    // Styling for your fixed footer
+    height: '12%', // Example fixed height
+    display:'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+  },
+  workoutItem: {
+      flexDirection: 'row',
+      // alignItems: 'center',
+      justifyContent: 'space-between',
+      // gap: 4,
+      padding: 10,
+      borderBottomColor: '#83838341',
+      borderBottomWidth: 1,
+      width: '100%',
+      maxWidth: 1024,
+      marginHorizontal: 'auto',
+      pointerEvents: 'auto',
+    },
+    workoutText: {
+      // flex: 1,
+      fontSize: 18,
+      fontFamily: 'Inter_500Medium',
+      color: theme.text,
     }
   })
 }

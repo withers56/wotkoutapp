@@ -25,6 +25,7 @@ const StackLayout = () => {
                     }),
                     headerShown: true,
                     headerTintColor: theme.color,
+                    headerBackTitle: 'Home',
                     headerStyle: {
                         backgroundColor: theme.background,
                         
