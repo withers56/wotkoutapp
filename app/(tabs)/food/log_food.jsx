@@ -1,16 +1,45 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform } from 'react-native'
 import { React, useState, useContext, useEffect} from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
 import { ScrollView } from 'react-native-gesture-handler';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 
 const log_food = () => {
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
+    const [foodData, setFoodData] = useState([]);
+    const router = useRouter();
+    const db = useSQLiteContext();
+
+    useEffect(() => {
+      loadFoods();
+    }, [])
+
+    const loadFoods = async () => {
+      console.log('in load foods');
+
+      const result = await db.getAllAsync("SELECT * FROM foods ORDER BY name");
+
+      setFoodData(result);
+    }
+
+    const renderFoods = ({item}) => (
+      <View>
+        <Text>{item.name}</Text>
+      </View>
+    )
   
     return (
     <View style={styles.container}>
-        <Text style={styles.text}>test</Text>
+        <Text style={styles.text}></Text>
+
+        <FlatList 
+          data={foodData}
+          renderItem={renderFoods}
+          keyExtractor={data => data.id}/>
     </View>
   )
 }
