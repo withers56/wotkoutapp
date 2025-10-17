@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, TouchableOpacity, } from 'react-native'
+import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, TouchableOpacity, Animated } from 'react-native'
 import { React, useState, useContext, useEffect} from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
@@ -83,7 +83,7 @@ const log_food = () => {
           onChangeText={handleSearchFilter}/>
 
         <Text style={styles.text}>{foodQuery}</Text>
-        <FlatList 
+        <Animated.FlatList 
           // style={{marginBottom: 80}}
           data={foodDataFiltered}
           renderItem={renderFoods}

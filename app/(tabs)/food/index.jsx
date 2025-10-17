@@ -20,6 +20,7 @@ export default function TabTwoScreen() {
   const styles = createStyles(theme, colorScheme)
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(true);
   const [calories, setCalories] = useState(0);
   const [logId, setLogId] = useState();
   const [food, setFood] = useState([]);
@@ -77,17 +78,27 @@ export default function TabTwoScreen() {
 
     setLogId(result.lastInsertRowId);
 
-    // await db.runAsync('INSERT INTO log_food_entries (log_id, food_id) VALUES (?, ?)',
-    //   [result.lastInsertRowId, 1]
-    // )
+    //could cause recursion, problems??
+    fetchLogData();
   }
 
 
   if (result.length > 0) {
     console.log('there is a log');
+    let calorieCounter = 0;
     
     setLogId(result[0].log_id)
     setFood(result)
+
+    result.forEach(item => {
+      console.log(item);
+      calorieCounter = calorieCounter + Number((item.num_servings * item.calories_per_serving).toFixed())
+    })
+
+    if (!result[0].entryId == null) {
+      setIsEmpty(false);
+    }
+    setCalories(calorieCounter);
   }
  }
   
@@ -214,12 +225,13 @@ export default function TabTwoScreen() {
         </Pressable>
       </View>
       <View style={styles.foodEntryContainer}>
+        {isEmpty && (
           <Animated.FlatList
             data={food}
             renderItem={renderFoodList}
             keyExtractor={data => data.entryId}
             // ListFooterComponent={renderFooter}
-          />
+          />)}
           <View style={styles.footer}>
             <Text style={[styles.text, {paddingHorizontal: 10, fontSize: 20}]}>Total Calories: {calories}</Text>
           </View>
