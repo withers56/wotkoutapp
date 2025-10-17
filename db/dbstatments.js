@@ -211,8 +211,8 @@ export default function dbInit() {
       CREATE TABLE IF NOT EXISTS log_food_entries (
         log_id INTEGER NOT NULL,
         food_id INTEGER NOT NULL,
-        PRIMARY KEY (log_id, food_id),  -- Prevent duplicate food entries per log
-        FOREIGN KEY (log_id) REFERENCES daily_logs(id) ON DELETE CASCADE,
+        PRIMARY KEY (log_id, food_id),
+        FOREIGN KEY (log_id) REFERENCES food_logs(id) ON DELETE CASCADE,
         FOREIGN KEY (food_id) REFERENCES foods(id) ON DELETE CASCADE
       );
 

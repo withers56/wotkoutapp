@@ -11,7 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import * as SQLite from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export const dbName = 'estnewv15.db';
+export const dbName = 'estnewv18.db';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -37,6 +37,25 @@ export default function RootLayout() {
         try {
 
           
+
+          // console.log(await db.getAllAsync
+          //   (`SELECT 
+          //       L.log_date, F.name 
+          //     FROM 
+          //       food_logs AS L 
+          //     INNER JOIN 
+          //       log_food_entries AS FLE ON L.id = FLE.log_id 
+          //     INNER JOIN 
+          //       foods AS F ON FLE.food_id = F.id
+          //     WHERE
+          //       L.log_date = "2025-10-17"`));
+
+          // await db.runAsync('INSERT INTO log_food_entries (log_id, food_id) VALUES (?, ?)',
+          //   [1, 1]
+          // )
+
+
+
 
           await db.execAsync(dbInit())
 

@@ -21,6 +21,7 @@ export default function TabTwoScreen() {
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const [calories, setCalories] = useState(0);
+  const [logId, setLogId] = useState();
   const [food, setFood] = useState([
   { id: 1, name: 'Apple', calories: 52 },
   { id: 2, name: 'Banana', calories: 89 },
@@ -92,21 +93,39 @@ export default function TabTwoScreen() {
  const fetchLogData = async () => {
   console.log('in fetch food log');
   
-  const result = await db.getAllAsync(`SELECT * FROM food_logs WHERE log_date = '${date.toISOString().split('T')[0]}'`);
+  const result = await db.getAllAsync
+            (`SELECT 
+                L.id AS log_id, L.log_date, L.notes, F.name, F.id AS food_id 
+              FROM 
+                food_logs AS L 
+              INNER JOIN 
+                log_food_entries AS FLE ON L.id = FLE.log_id 
+              INNER JOIN 
+                foods AS F ON FLE.food_id = F.id
+              WHERE
+                L.log_date = '${date.toISOString().split('T')[0]}'`)
 
   console.log(result);
 
   if(result.length === 0){
     console.log('should be empty');
     
-    db.runAsync('INSERT INTO food_logs (log_date, notes) VALUES (?, ?)',
+    const result = await db.runAsync('INSERT INTO food_logs (log_date, notes) VALUES (?, ?)',
       [date.toISOString().split('T')[0], 'this is going to be the stuff that was inputed on ' + date.toISOString().split('T')[0]]
     )
+
+    setLogId(result.lastInsertRowId);
+
+    await db.runAsync('INSERT INTO log_food_entries (log_id, food_id) VALUES (?, ?)',
+      [result.lastInsertRowId, 1]
+    )
   }
+
 
   if (result.length > 0) {
     console.log('there is a log');
     
+    setLogId(result.id)
     setFood(result)
   }
  }
