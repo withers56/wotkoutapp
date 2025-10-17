@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 
 
@@ -25,6 +25,7 @@ export default function TabTwoScreen() {
   const [food, setFood] = useState([]);
   const router = useRouter();
   const db = useSQLiteContext();
+
   
 
 //  useEffect(() =>{
@@ -35,6 +36,7 @@ export default function TabTwoScreen() {
 
  useFocusEffect(
       useCallback(() => {
+        
         fetchLogData();
       }, [date])
   )
@@ -54,7 +56,15 @@ export default function TabTwoScreen() {
   //             WHERE
   //               L.log_date = '${date.toISOString().split('T')[0]}'`)
 
-  const result = await db.getAllAsync(`SELECT log_date, id, notes FROM food_logs WHERE log_date = '${date.toISOString().split('T')[0]}'`)
+  const result = await db.getAllAsync(
+              `SELECT 
+                L.id AS log_id, FLE.id AS entryId, L.log_date, F.name, FLE.num_servings, F.calories_per_serving
+               FROM 
+                 food_logs AS L 
+               LEFT JOIN 
+                 log_food_entries AS FLE ON L.id = FLE.log_id 
+               LEFT JOIN 
+                 foods AS F ON FLE.food_id = F.id WHERE log_date = '${date.toISOString().split('T')[0]}'`)
 
   console.log(result);
 
@@ -76,8 +86,8 @@ export default function TabTwoScreen() {
   if (result.length > 0) {
     console.log('there is a log');
     
-    setLogId(result[0].id)
-    setFood(result[0])
+    setLogId(result[0].log_id)
+    setFood(result)
   }
  }
   
@@ -93,12 +103,14 @@ export default function TabTwoScreen() {
     console.log('clicked back');
     setDate(new Date(date.setDate(date.getDate() - 1)));
     setShow(false)
+    setFood([]);
   }
 
   const handleForward = () => {
     console.log('clicked forward');
     setDate(new Date(date.setDate(date.getDate() + 1)));
     setShow(false)
+    setFood([]);
   }
 
   const handleDatePick = () => {
@@ -120,25 +132,35 @@ export default function TabTwoScreen() {
 
     router.push({
       pathname: '/food/food_list',
-      params: { log_Id: logId},
+      params: { log_Id: logId, date: date},
     });
   }
 
-  const renderFoodList = ({ item }) => (
+  const renderFoodList = ({ item }) => {
+    
+    
+    // setCalories(calories + Number((item.num_servings * item.calories_per_serving).toFixed()));
+    
+    
+    return (
       <TouchableOpacity>
         
               <View style={styles.workoutItem}>
                
-                
-                  <Text style={styles.workoutText}>{item.notes}</Text>
-                  {/* <Text style={styles.workoutText}>{item.name}</Text>
-                  <Text style={styles.workoutText}>{item.calories} cal</Text>
-                   */}
+                <View>
+                  <Text style={styles.workoutText}>{item.name}</Text>
+                </View>
+                <View>
+                  <Text style={styles.workoutText}>{ Number((item.num_servings * item.calories_per_serving).toFixed())} cal</Text>
+                </View>
+                  
+                  
+                  
                 
                 
               </View>
       </TouchableOpacity>
-  )
+  )}
 
   const renderFooter = () => (
     <View style={styles.footer}>
@@ -195,7 +217,7 @@ export default function TabTwoScreen() {
           <Animated.FlatList
             data={food}
             renderItem={renderFoodList}
-            keyExtractor={data => data.id}
+            keyExtractor={data => data.entryId}
             // ListFooterComponent={renderFooter}
           />
           <View style={styles.footer}>

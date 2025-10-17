@@ -16,11 +16,12 @@ const log_food = () => {
     const router = useRouter();
     const db = useSQLiteContext();
 
-    const { log_Id } = useLocalSearchParams();
+    const { log_Id} = useLocalSearchParams();
 
     useEffect(() => {
       loadFoods();
       console.log(log_Id);
+      
       
     }, [])
 
