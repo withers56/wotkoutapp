@@ -10,18 +10,85 @@ import { useSQLiteContext } from 'expo-sqlite';
 const log_food = () => {
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
-    const { log_id, food_id} = useLocalSearchParams();
+    const [foodData, setFoodData] = useState([]);
+    const [foodDataFiltered, setFoodDataFiltered] = useState([]);
+    const [foodQuery, setFoodQuery] = useState('');
+    const router = useRouter();
+    const db = useSQLiteContext();
+
+    const { log_Id } = useLocalSearchParams();
 
     useEffect(() => {
-      console.log('logId: ' + log_id + ' food ID: ' + food_id);
+      loadFoods();
+      console.log(log_Id);
       
     }, [])
+
+    const loadFoods = async () => {
+      console.log('in load foods');
+
+      const result = await db.getAllAsync("SELECT * FROM foods ORDER BY name");
+
+      setFoodData(result);
+      setFoodDataFiltered(result);
+    }
+
+    const handleFoodPress = (id) => {
+      console.log('clicked food with id: ' + id);
+
+      //route to log food folder
+
+      // router.push(`/food/log_food`)
+
+      router.push({
+        pathname: '/food/log_food',
+        params: { log_id: log_Id, food_id: id}
+      })
+      
+    }
+
+    const renderFoods = ({item}) => (
+      <TouchableOpacity
+        onPress={() => {handleFoodPress(item.id)}}>     
+        <View style={styles.listItem}>              
+          <Text style={styles.listText}>{item.name}</Text>            
+        </View>
+      </TouchableOpacity>
+    )
+
+    const handleSearchFilter = (value) => {
+        setFoodQuery(value);
+        if (value.trim() === '') {
+            setFoodDataFiltered(foodData); // Show all data if search is empty
+            return;
+        }
+
+        const lowercasedQuery = value.toLowerCase();
+        const newData = foodData.filter(item => {
+            return item.name.toLowerCase().includes(lowercasedQuery)
+        });
+
+        setFoodDataFiltered(newData);
+    }
   
     return (
-        <View>
-            <Text>edit food entry</Text>
-        </View>
-    )
+    <View style={styles.container}>
+        
+
+        <TextInput 
+          style={styles.searchInput}
+          placeholder='search food'
+          value={foodQuery}
+          onChangeText={handleSearchFilter}/>
+
+        <Text style={styles.text}>{foodQuery}</Text>
+        <FlatList 
+          // style={{marginBottom: 80}}
+          data={foodDataFiltered}
+          renderItem={renderFoods}
+          keyExtractor={data => data.id}/>
+    </View>
+  )
 }
 
 function createStyles(theme, colorScheme) {

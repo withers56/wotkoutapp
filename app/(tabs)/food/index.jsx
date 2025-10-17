@@ -22,58 +22,7 @@ export default function TabTwoScreen() {
   const [show, setShow] = useState(false);
   const [calories, setCalories] = useState(0);
   const [logId, setLogId] = useState();
-  const [food, setFood] = useState([
-  { id: 1, name: 'Apple', calories: 52 },
-  { id: 2, name: 'Banana', calories: 89 },
-  { id: 3, name: 'Bread', calories: 265 },
-  { id: 4, name: 'Rice', calories: 130 },
-  { id: 5, name: 'Chicken Breast', calories: 165 },
-  { id: 6, name: 'Egg', calories: 155 },
-  { id: 7, name: 'Milk', calories: 42 },
-  { id: 8, name: 'Potato', calories: 77 },
-  { id: 9, name: 'Carrot', calories: 41 },
-  { id: 10, name: 'Broccoli', calories: 34 },
-  { id: 11, name: 'Tomato', calories: 18 },
-  { id: 12, name: 'Orange', calories: 47 },
-  { id: 13, name: 'Beef', calories: 250 },
-  { id: 14, name: 'Cheese', calories: 402 },
-  { id: 15, name: 'Butter', calories: 717 },
-  { id: 16, name: 'Pasta', calories: 131 },
-  { id: 17, name: 'Oats', calories: 389 },
-  { id: 18, name: 'Yogurt', calories: 61 },
-  { id: 19, name: 'Spinach', calories: 23 },
-  { id: 20, name: 'Lettuce', calories: 15 },
-  { id: 21, name: 'Strawberry', calories: 32 },
-  { id: 22, name: 'Grapes', calories: 69 },
-  { id: 23, name: 'Salmon', calories: 208 },
-  { id: 24, name: 'Tuna', calories: 132 },
-  { id: 25, name: 'Almonds', calories: 579 },
-  { id: 26, name: 'Peanut Butter', calories: 588 },
-  { id: 27, name: 'Avocado', calories: 160 },
-  { id: 28, name: 'Onion', calories: 40 },
-  { id: 29, name: 'Garlic', calories: 149 },
-  { id: 30, name: 'Corn', calories: 86 },
-  { id: 31, name: 'Beans', calories: 347 },
-  { id: 32, name: 'Lentils', calories: 116 },
-  { id: 33, name: 'Pork', calories: 242 },
-  { id: 34, name: 'Lamb', calories: 294 },
-  { id: 35, name: 'Turkey', calories: 135 },
-  { id: 36, name: 'Shrimp', calories: 99 },
-  { id: 37, name: 'Quinoa', calories: 120 },
-  { id: 38, name: 'Barley', calories: 123 },
-  { id: 39, name: 'Cucumber', calories: 16 },
-  { id: 40, name: 'Bell Pepper', calories: 26 },
-  { id: 41, name: 'Mushroom', calories: 22 },
-  { id: 42, name: 'Zucchini', calories: 17 },
-  { id: 43, name: 'Watermelon', calories: 30 },
-  { id: 44, name: 'Pineapple', calories: 50 },
-  { id: 45, name: 'Blueberry', calories: 57 },
-  { id: 46, name: 'Pear', calories: 57 },
-  { id: 47, name: 'Peach', calories: 39 },
-  { id: 48, name: 'Olive Oil', calories: 884 },
-  { id: 49, name: 'Honey', calories: 304 },
-  { id: 50, name: 'Sugar', calories: 387 }
-]);
+  const [food, setFood] = useState([]);
   const router = useRouter();
   const db = useSQLiteContext();
   
@@ -93,17 +42,19 @@ export default function TabTwoScreen() {
  const fetchLogData = async () => {
   console.log('in fetch food log');
   
-  const result = await db.getAllAsync
-            (`SELECT 
-                L.id AS log_id, L.log_date, L.notes, F.name, F.id AS food_id 
-              FROM 
-                food_logs AS L 
-              INNER JOIN 
-                log_food_entries AS FLE ON L.id = FLE.log_id 
-              INNER JOIN 
-                foods AS F ON FLE.food_id = F.id
-              WHERE
-                L.log_date = '${date.toISOString().split('T')[0]}'`)
+  // const result = await db.getAllAsync
+  //           (`SELECT 
+  //               L.id AS log_id, L.log_date, L.notes, F.name, F.id AS food_id 
+  //             FROM 
+  //               food_logs AS L 
+  //             INNER JOIN 
+  //               log_food_entries AS FLE ON L.id = FLE.log_id 
+  //             INNER JOIN 
+  //               foods AS F ON FLE.food_id = F.id
+  //             WHERE
+  //               L.log_date = '${date.toISOString().split('T')[0]}'`)
+
+  const result = await db.getAllAsync(`SELECT log_date, id, notes FROM food_logs WHERE log_date = '${date.toISOString().split('T')[0]}'`)
 
   console.log(result);
 
@@ -116,17 +67,17 @@ export default function TabTwoScreen() {
 
     setLogId(result.lastInsertRowId);
 
-    await db.runAsync('INSERT INTO log_food_entries (log_id, food_id) VALUES (?, ?)',
-      [result.lastInsertRowId, 1]
-    )
+    // await db.runAsync('INSERT INTO log_food_entries (log_id, food_id) VALUES (?, ?)',
+    //   [result.lastInsertRowId, 1]
+    // )
   }
 
 
   if (result.length > 0) {
     console.log('there is a log');
     
-    setLogId(result.id)
-    setFood(result)
+    setLogId(result[0].id)
+    setFood(result[0])
   }
  }
   
@@ -165,7 +116,12 @@ export default function TabTwoScreen() {
 
   const handleAddFood = () => {
     console.log('clicked add food');
-    router.navigate('/food/log_food')
+    // router.navigate('/food/food_list')
+
+    router.push({
+      pathname: '/food/food_list',
+      params: { log_Id: logId},
+    });
   }
 
   const renderFoodList = ({ item }) => (
@@ -200,9 +156,9 @@ export default function TabTwoScreen() {
             <FontAwesome5 name="less-than" size={20} color={theme.color} />
         </Pressable>  
         <Pressable
-          style={styles.dateContainerButtons}
+          style={[styles.dateContainerButtons, {width: '65%'}]}
           onPress={handleDatePick}>
-                  <Text style={[styles.text, styles.dateText]}>{date.toLocaleDateString('en-US', {
+                  <Text style={[styles.text, styles.dateText, {textAlign: 'center'}]}>{date.toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'    

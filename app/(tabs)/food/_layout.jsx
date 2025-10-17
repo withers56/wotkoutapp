@@ -16,7 +16,7 @@ const StackLayout = () => {
                     headerShown: false
                 }}/>
             <Stack.Screen 
-                name="log_food"
+                name="food_list"
                 options={{
                     title: 'Food',
                     headerShown: true,
@@ -26,7 +26,19 @@ const StackLayout = () => {
                         backgroundColor: theme.background,
                         
                     }
-                }}/>       
+            }}/>  
+            <Stack.Screen 
+                name="log_food"
+                options={{
+                    title: 'Add Food',
+                    headerShown: true,
+                    headerTintColor: theme.color,
+                    headerBackTitle: 'List',
+                    headerStyle: {
+                        backgroundColor: theme.background,
+                        
+                    }
+            }}/>      
         </Stack>
     );
 };

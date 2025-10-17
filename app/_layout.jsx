@@ -11,7 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import * as SQLite from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export const dbName = 'estnewv18.db';
+export const dbName = 'estnewv21.db';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -81,8 +81,8 @@ export default function RootLayout() {
       
       DEFAULT_FOODS.forEach(item => {
         db.runAsync(
-          'INSERT INTO foods (name, id, calories_per_serving, serving_size, num_servings, protein_per_serving, carbs_per_serving, fat_per_serving) VALUES (?,?,?,?,?,?,?,?)',
-          [item.name, item.id, item.calories_per_serving, item.serving_size, item.num_servings, item.protein_per_serving, item.carbs_per_serving, item.fat_per_serving]
+          'INSERT INTO foods (name, id, calories_per_serving, serving_size, protein_per_serving, carbs_per_serving, fat_per_serving) VALUES (?,?,?,?,?,?,?)',
+          [item.name, item.id, item.calories_per_serving, item.serving_size, item.protein_per_serving, item.carbs_per_serving, item.fat_per_serving]
         )
       })
     }
