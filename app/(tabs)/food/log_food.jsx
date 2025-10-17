@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform } from 'react-native'
+import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, TouchableOpacity, } from 'react-native'
 import { React, useState, useContext, useEffect} from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
@@ -11,6 +11,8 @@ const log_food = () => {
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
     const [foodData, setFoodData] = useState([]);
+    const [foodDataFiltered, setFoodDataFiltered] = useState([]);
+    const [foodQuery, setFoodQuery] = useState('');
     const router = useRouter();
     const db = useSQLiteContext();
 
@@ -24,20 +26,52 @@ const log_food = () => {
       const result = await db.getAllAsync("SELECT * FROM foods ORDER BY name");
 
       setFoodData(result);
+      setFoodDataFiltered(result);
+    }
+
+    const handleFoodPress = (id) => {
+      console.log('clicked food with id: ' + id);
+      
     }
 
     const renderFoods = ({item}) => (
-      <View>
-        <Text>{item.name}</Text>
-      </View>
+      <TouchableOpacity
+        onPress={() => {handleFoodPress(item.id)}}>     
+        <View style={styles.listItem}>              
+          <Text style={styles.listText}>{item.name}</Text>            
+        </View>
+      </TouchableOpacity>
     )
+
+    const handleSearchFilter = (value) => {
+        setFoodQuery(value);
+        if (value.trim() === '') {
+            setFoodDataFiltered(foodData); // Show all data if search is empty
+            return;
+        }
+
+        const lowercasedQuery = value.toLowerCase();
+        const newData = foodData.filter(item => {
+            return item.name.toLowerCase().includes(lowercasedQuery)
+        });
+
+        setFoodDataFiltered(newData);
+    }
   
     return (
     <View style={styles.container}>
-        <Text style={styles.text}></Text>
+        
 
+        <TextInput 
+          style={styles.searchInput}
+          placeholder='search food'
+          value={foodQuery}
+          onChangeText={handleSearchFilter}/>
+
+        <Text style={styles.text}>{foodQuery}</Text>
         <FlatList 
-          data={foodData}
+          // style={{marginBottom: 80}}
+          data={foodDataFiltered}
           renderItem={renderFoods}
           keyExtractor={data => data.id}/>
     </View>
@@ -90,7 +124,34 @@ function createStyles(theme, colorScheme) {
     addFoodContainer: {
       borderBottomColor: 'gray',
       borderBottomWidth: 1,
-    }
+    },
+    listItem: {
+      flexDirection: 'row',
+      // alignItems: 'center',
+      justifyContent: 'space-between',
+      // gap: 4,
+      padding: 10,
+      borderBottomColor: '#83838341',
+      borderBottomWidth: 1,
+      width: '100%',
+      maxWidth: 1024,
+      marginHorizontal: 'auto',
+      pointerEvents: 'auto',
+    },
+    listText: {
+      // flex: 1,
+      fontSize: 18,
+      fontFamily: 'Inter_500Medium',
+      color: theme.text,
+    },
+    searchInput: {
+    color: theme.text,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginHorizontal: 10
+  },
   })
 }
 

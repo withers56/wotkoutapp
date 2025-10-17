@@ -617,6 +617,7 @@ function createStyles(theme, colorScheme) {
         width: '100%'
     },
   searchInput: {
+    color: theme.text,
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,

@@ -1,5 +1,5 @@
 import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, Animated, ScrollView, TouchableOpacity } from 'react-native'
-import { React, useState, useContext, useEffect} from 'react'
+import { React, useState, useContext, useEffect, useCallback} from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -77,7 +77,39 @@ export default function TabTwoScreen() {
   const db = useSQLiteContext();
   
 
- 
+//  useEffect(() =>{
+//     //function to either create an empty lof entry, or if they have already logged for the day then fetch the data
+
+//     fetchLogData()
+//  }, [date])
+
+ useFocusEffect(
+      useCallback(() => {
+        fetchLogData();
+      }, [date])
+  )
+
+ const fetchLogData = async () => {
+  console.log('in fetch food log');
+  
+  const result = await db.getAllAsync(`SELECT * FROM food_logs WHERE log_date = '${date.toISOString().split('T')[0]}'`);
+
+  console.log(result);
+
+  if(result.length === 0){
+    console.log('should be empty');
+    
+    db.runAsync('INSERT INTO food_logs (log_date, notes) VALUES (?, ?)',
+      [date.toISOString().split('T')[0], 'this is going to be the stuff that was inputed on ' + date.toISOString().split('T')[0]]
+    )
+  }
+
+  if (result.length > 0) {
+    console.log('there is a log');
+    
+    setFood(result)
+  }
+ }
   
 
   const onChange = (event, selectedDate) => {
@@ -123,9 +155,10 @@ export default function TabTwoScreen() {
               <View style={styles.workoutItem}>
                
                 
-                  <Text style={styles.workoutText}>{item.name}</Text>
+                  <Text style={styles.workoutText}>{item.notes}</Text>
+                  {/* <Text style={styles.workoutText}>{item.name}</Text>
                   <Text style={styles.workoutText}>{item.calories} cal</Text>
-                  
+                   */}
                 
                 
               </View>

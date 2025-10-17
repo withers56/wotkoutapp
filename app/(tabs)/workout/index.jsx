@@ -299,6 +299,7 @@ export default function Workout() {
                 <Text>{workout.start_time != null ? workout.start_time.getTime() : ''}</Text>
             </View>
             <Animated.FlatList
+              style={{marginBottom: 50}}
               data={workoutHistory}
               renderItem={renderListItem}
               keyExtractor={data => data.id} />
@@ -314,7 +315,7 @@ function createStyles(theme, colorScheme) {
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      flexDirection: 'column'
+      // flexDirection: 'column'
     },
     text: {
       color: theme.text
