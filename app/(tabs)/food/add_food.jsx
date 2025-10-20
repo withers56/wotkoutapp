@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { ThemeContext } from "@/context/ThemeContext";
+import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -15,7 +16,10 @@ const add_food = () => {
     const navigation = useNavigation();
     
     const [name, setName] = useState('');
+    const [weight, setWeight] = useState(0);
     const [servingUOM, setServingUOM] = useState([])
+    const [selectedMeasurement, setSelectedMeasurement] = useState();
+    const [selectedLanguage, setSelectedLanguage] = useState();
   
     return (
         <ScrollView style={styles.container}>
@@ -27,14 +31,37 @@ const add_food = () => {
                     onChangeText={value => setName(value)}
                     placeholder="enter name"/>
             </View>
-            <View style={styles.weightItem}>
-                <Text style={styles.text}>Serving Size</Text>
-                <TextInput 
+            <View style={[styles.weightItem, {height: 100}]}>
+                <Text style={[styles.text, {width: '25%'}]}>Serving Size</Text>
+                <TextInput
+                    style={[styles.input, styles.text, {width: '20%'}]}
                     value={name}
                     keyboardType='default'
                     onChangeText={value => setName(value)}
-                    placeholder="volume"/>
+                    placeholder="Volume"/>    
+                <TextInput
+                                    style={[styles.input, styles.text, {width: '20%'}]}
+
+                    value={weight}
+                    keyboardType='number-pad'
+                    onChangeText={value => setWeight(value)}
+                    placeholder="Weight"/>    
+                <View style={{width: '35%'}}>
+                    <ScrollView>
+                    <Picker
+                        selectedValue={selectedMeasurement}
+                        onValueChange={(itemValue, itemIndex) =>
+                            setSelectedMeasurement(itemValue)
+                        }>
+                        <Picker.Item label='Gram' value='test'/>
+                        <Picker.Item label='Ounce' value='test1'/>
+                        <Picker.Item label='Ml' value='test2x'/>
+                    </Picker>   
+                    </ScrollView>    
+                 </View>    
+                
             </View>
+            
         </ScrollView>
     )
 }
@@ -50,6 +77,13 @@ function createStyles(theme, colorScheme) {
     },
     dateText: {
       fontSize: 24, width: '100%'
+    },
+    input: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        width: '45%'
     },
 
   
