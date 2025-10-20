@@ -4,8 +4,9 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { React, useContext, useState } from 'react';
+import { React, useContext, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+
 
 
 const add_food = () => {
@@ -17,27 +18,40 @@ const add_food = () => {
     
     const [name, setName] = useState('');
     const [weight, setWeight] = useState(0);
+    const [volume, setVolume] = useState('');
     const [servingUOM, setServingUOM] = useState([])
-    const [selectedMeasurement, setSelectedMeasurement] = useState();
+    const [selectedMeasurement, setSelectedMeasurement] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState();
+
+    const [selectedValue, setSelectedValue] = useState('opt1');
+
+    // Your options array
+    const options = [
+        { label: 'Apple', value: 'opt1' },
+        { label: 'Banana', value: 'opt2' },
+        { label: 'Cherry', value: 'opt3' },
+    ];
+    const pickerRef = useRef();
+
   
     return (
         <ScrollView style={styles.container}>
             <View style={styles.weightItem}>
                 <Text style={styles.text}>Name</Text>
-                <TextInput 
+                <TextInput
+                    style={[styles.input, styles.text]} 
                     value={name}
                     keyboardType='default'
                     onChangeText={value => setName(value)}
                     placeholder="enter name"/>
             </View>
-            <View style={[styles.weightItem, {height: 100}]}>
+            <View style={[styles.weightItem, {height: 200}]}>
                 <Text style={[styles.text, {width: '25%'}]}>Serving Size</Text>
                 <TextInput
                     style={[styles.input, styles.text, {width: '20%'}]}
-                    value={name}
+                    value={volume}
                     keyboardType='default'
-                    onChangeText={value => setName(value)}
+                    onChangeText={value => setVolume(value)}
                     placeholder="Volume"/>    
                 <TextInput
                                     style={[styles.input, styles.text, {width: '20%'}]}
@@ -47,17 +61,18 @@ const add_food = () => {
                     onChangeText={value => setWeight(value)}
                     placeholder="Weight"/>    
                 <View style={{width: '35%'}}>
-                    <ScrollView>
+                    <View>
                     <Picker
+                        ref={pickerRef}
                         selectedValue={selectedMeasurement}
-                        onValueChange={(itemValue, itemIndex) =>
+                        onValueChange={(itemValue, itemIndex) => {
                             setSelectedMeasurement(itemValue)
-                        }>
+                        }}>
                         <Picker.Item label='Gram' value='test'/>
                         <Picker.Item label='Ounce' value='test1'/>
                         <Picker.Item label='Ml' value='test2x'/>
                     </Picker>   
-                    </ScrollView>    
+                    </View>    
                  </View>    
                 
             </View>
