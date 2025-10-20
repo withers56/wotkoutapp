@@ -27,8 +27,7 @@ const log_food = () => {
           headerRight: () => (
             <Pressable
               style={{padding: 5}}
-              onPress={() => {console.log('clicked add');
-              }}
+              onPress={handleAddFood}
             >
               <AntDesign name="plus" size={24} color={theme.text} />
             </Pressable>
@@ -50,6 +49,12 @@ const log_food = () => {
 
       setFoodData(result);
       setFoodDataFiltered(result);
+    }
+
+    const handleAddFood = () => {
+      console.log('clicked add')
+
+      router.push('/food/add_food');
     }
 
     const handleFoodPress = (id) => {
