@@ -1,13 +1,12 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, TouchableOpacity, } from 'react-native'
-import { React, useState, useContext, useEffect} from 'react'
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
-import { ScrollView } from 'react-native-gesture-handler';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useNavigation } from '@react-navigation/native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { React, useContext, useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const log_food = () => {
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
@@ -70,7 +69,18 @@ const log_food = () => {
         return;
       }
 
-      return foodItem.serving_size.replace(/[^0-9]/g, '');
+      let servingSizeArray = foodItem.serving_size.split(' ');
+
+      console.log(servingSizeArray[servingSizeArray.length - 1].match(/\(([^)]*)\)/)[1].match(/[a-zA-Z]+|[0-9]+/g));
+
+
+      // 0 index is number amount, second index is unit of measure, usually grams
+     let data = servingSizeArray[servingSizeArray.length - 1].match(/\(([^)]*)\)/)[1].match(/[a-zA-Z]+|[0-9]+/g);
+      
+
+      
+
+      return '(' + (data[0] * numOfServings).toFixed() + data[1] + ')';
     }
   
     return (
@@ -93,7 +103,7 @@ const log_food = () => {
                     value={numOfServings}
                     onChangeText={value => setNumOfServings(value)}
                     placeholder={numOfServings + ''}/>
-                    <Text style={styles.text}> Servings</Text>
+                    <Text style={styles.text}> Servings {calcualtedServing()}</Text>
                 </View>  
             </View>
             <View style={styles.weightItem}>

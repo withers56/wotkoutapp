@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, TouchableOpacity, Animated } from 'react-native'
-import { React, useState, useContext, useEffect} from 'react'
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
-import { ScrollView } from 'react-native-gesture-handler';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { useNavigation } from '@react-navigation/native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { React, useContext, useEffect, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+
 
 const log_food = () => {
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
@@ -15,8 +17,24 @@ const log_food = () => {
     const [foodQuery, setFoodQuery] = useState('');
     const router = useRouter();
     const db = useSQLiteContext();
+    const navigation = useNavigation();
+    
 
     const { log_Id} = useLocalSearchParams();
+
+    useEffect(() => {
+        navigation.setOptions({
+          headerRight: () => (
+            <Pressable
+              style={{padding: 5}}
+              onPress={() => {console.log('clicked add');
+              }}
+            >
+              <AntDesign name="plus" size={24} color={theme.text} />
+            </Pressable>
+          ),
+        });
+    }, [navigation]);
 
     useEffect(() => {
       loadFoods();
