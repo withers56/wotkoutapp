@@ -2,9 +2,9 @@
 import { ThemeContext } from "@/context/ThemeContext";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useNavigation } from '@react-navigation/native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { React, useContext, useEffect, useState } from 'react';
+import { React, useCallback, useContext, useEffect, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 
@@ -35,12 +35,13 @@ const log_food = () => {
         });
     }, [navigation]);
 
-    useEffect(() => {
-      loadFoods();
-      console.log(log_Id);
-      
-      
-    }, [])
+    useFocusEffect(
+          useCallback(() => {
+            
+            loadFoods();
+            console.log(log_Id);
+          }, [])
+      )
 
     const loadFoods = async () => {
       console.log('in load foods');
@@ -104,8 +105,6 @@ const log_food = () => {
           placeholder='search food'
           value={foodQuery}
           onChangeText={handleSearchFilter}/>
-
-        <Text style={styles.text}>{foodQuery}</Text>
         <Animated.FlatList 
           // style={{marginBottom: 80}}
           data={foodDataFiltered}

@@ -44,6 +44,9 @@ export default function TabTwoScreen() {
 
  const fetchLogData = async () => {
   console.log('in fetch food log');
+
+  console.log(await db.getAllAsync('SELECT * FROM foods'));
+  
   
   // const result = await db.getAllAsync
   //           (`SELECT 
