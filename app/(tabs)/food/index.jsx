@@ -6,6 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { Swipeable } from 'react-native-gesture-handler';
 
 
 // import { Collapsible } from '@/components/Collapsible';
@@ -149,38 +150,63 @@ export default function TabTwoScreen() {
       params: { log_Id: logId, date: date},
     });
   }
+  const handleDelete = async (id) => {
+      try {
+        await db.runAsync("DELETE FROM log_food_entries WHERE id = ?;", [id]);
+        fetchLogData();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+  const renderSwipeRightActions = (id) => {
+      return (
+        <TouchableOpacity
+          style={{
+            backgroundColor: theme.danger,
+            borderBottomColor: 'gray',
+            borderBottomWidth: 1,
+            flexDirection: 'row',
+            alignItems:'center',
+            paddingHorizontal: 5
+            
+          }}
+          onPress={() => handleDelete(id)}>
+          <Text>DELETE</Text>
+        </TouchableOpacity>
+      )
+
+    }
+
+      const handleItemPress = (entryId, foodId, logId, servings) => {
+        console.log('clicked entry with entryid: ' + entryId);
+        console.log('clicked entry with foodid: ' + foodId);
+        console.log('clicked entry with logid: ' + logId);
+
+        router.push({
+          pathname: '/food/log_food',
+          params: { log_id: logId, food_id: foodId, entry_id: entryId, prevServings: servings},
+        });    
+        
+      } 
 
   const renderFoodList = ({ item }) => {
-    
-    
-    // setCalories(calories + Number((item.num_servings * item.calories_per_serving).toFixed()));
-
-   const handleItemPress = (entryId, foodId, logId, servings) => {
-    console.log('clicked entry with entryid: ' + entryId);
-    console.log('clicked entry with foodid: ' + foodId);
-    console.log('clicked entry with logid: ' + logId);
-
-    router.push({
-      pathname: '/food/log_food',
-      params: { log_id: logId, food_id: foodId, entry_id: entryId, prevServings: servings},
-    });    
-    
-   } 
-    
-    
     return (
-      <TouchableOpacity
-        onPress={() => handleItemPress(item.entryId, item.food_id, item.log_id, item.num_servings)}>
-        
-          <View style={styles.workoutItem}>    
-            <View>
-              <Text style={styles.workoutText}>{item.name}</Text>
+      <Swipeable
+        renderRightActions={() => renderSwipeRightActions(item.entryId)}>
+        <TouchableOpacity
+          onPress={() => handleItemPress(item.entryId, item.food_id, item.log_id, item.num_servings)}>
+          
+            <View style={styles.workoutItem}>    
+              <View>
+                <Text style={styles.workoutText}>{item.name}</Text>
+              </View>
+              <View>
+                <Text style={styles.workoutText}>{ Number((item.num_servings * item.calories_per_serving).toFixed())} cal</Text>
+              </View>    
             </View>
-            <View>
-              <Text style={styles.workoutText}>{ Number((item.num_servings * item.calories_per_serving).toFixed())} cal</Text>
-            </View>    
-          </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </Swipeable>
   )}
 
   const renderFooter = () => (

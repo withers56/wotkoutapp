@@ -71,14 +71,17 @@ const log_food = () => {
 
         router.back()
         router.back()
-      }
-
+        
+      } else {
+        
       console.log('entry id found, updating entry');
       
       await db.runAsync(`UPDATE log_food_entries SET log_id = ?, food_id = ?, num_servings = ? WHERE id = ?`,
         [log_id, food_id, numOfServings, entry_id]);
 
-      router.back()  
+        router.back()  
+      }
+
     }
 
     const calcualtedServing = () => {

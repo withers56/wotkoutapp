@@ -11,7 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import * as SQLite from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export const dbName = 'estnewv25.db';
+export const dbName = 'estnewv27.db';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

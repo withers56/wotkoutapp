@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { ThemeContext } from "@/context/ThemeContext";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ThemeText from "../../../context/ThemeText";
@@ -15,7 +15,7 @@ import { dbName } from "../../_layout";
 const start_workout = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [newExerciseModalVisible, setNewExerciseModalVisible] = useState(false);
-
+    const flatListRef = useRef(null);
     const [currentWorkout, setCurrentWorkout] = useState({
         name: 'My Workout',
         start_time: new Date(Date.now()).toLocaleString('en-US', {
@@ -230,6 +230,7 @@ const start_workout = () => {
 
         }
         
+        flatListRef.current?.scrollToEnd({ animated: true });
     } 
 
     const renderDataRow = ({item, index}) => (
@@ -490,6 +491,7 @@ const start_workout = () => {
             <View >
                 
                     <Animated.FlatList 
+                        ref={flatListRef}
                         data={exercises}
                         keyboardShouldPersistTaps='handled'
                         renderItem={renderExercise}
