@@ -11,7 +11,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 const log_food = () => {
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const styles = createStyles(theme, colorScheme)
-    const { log_id, food_id} = useLocalSearchParams();
+    const { log_id, food_id, entry_id, prevServings} = useLocalSearchParams();
     const router = useRouter();
     const db = useSQLiteContext();
     const navigation = useNavigation();
@@ -35,6 +35,9 @@ const log_food = () => {
     useEffect(() => {
       console.log('logId: ' + log_id + ' food ID: ' + food_id);
       
+      console.log('entry id: ' + entry_id);
+      
+
       loadFoodItem();
     }, [])
 
@@ -44,6 +47,12 @@ const log_food = () => {
       console.log(result);
 
       setFoodItem(result);
+
+      if (entry_id !== undefined) {
+        console.log('update num servings here with: ' + prevServings);
+        
+        setNumOfServings(prevServings)
+      }
     }
 
     const handleSubmit = async () => {
@@ -52,15 +61,24 @@ const log_food = () => {
 
       console.log('food item: ' + foodItem);
       
+      if (entry_id === undefined) {
 
-      await db.runAsync(`INSERT INTO log_food_entries (log_id, food_id, num_servings) VALUES (?, ?, ?)`,
+        console.log('no entry id found, creating new entry');
+        
+
+        await db.runAsync(`INSERT INTO log_food_entries (log_id, food_id, num_servings) VALUES (?, ?, ?)`,
         [log_id, food_id, numOfServings]);
 
-      router.back()
-      router.back()
+        router.back()
+        router.back()
+      }
+
+      console.log('entry id found, updating entry');
       
-      
-      
+      await db.runAsync(`UPDATE log_food_entries SET log_id = ?, food_id = ?, num_servings = ? WHERE id = ?`,
+        [log_id, food_id, numOfServings, entry_id]);
+
+      router.back()  
     }
 
     const calcualtedServing = () => {

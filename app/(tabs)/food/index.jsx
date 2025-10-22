@@ -62,7 +62,7 @@ export default function TabTwoScreen() {
 
   const result = await db.getAllAsync(
               `SELECT 
-                L.id AS log_id, FLE.id AS entryId, L.log_date, F.name, FLE.num_servings, F.calories_per_serving
+                L.id AS log_id, FLE.id AS entryId, L.log_date, F.name, FLE.num_servings, F.calories_per_serving, F.id AS food_id
                FROM 
                  food_logs AS L 
                LEFT JOIN 
@@ -154,25 +154,32 @@ export default function TabTwoScreen() {
     
     
     // setCalories(calories + Number((item.num_servings * item.calories_per_serving).toFixed()));
+
+   const handleItemPress = (entryId, foodId, logId, servings) => {
+    console.log('clicked entry with entryid: ' + entryId);
+    console.log('clicked entry with foodid: ' + foodId);
+    console.log('clicked entry with logid: ' + logId);
+
+    router.push({
+      pathname: '/food/log_food',
+      params: { log_id: logId, food_id: foodId, entry_id: entryId, prevServings: servings},
+    });    
+    
+   } 
     
     
     return (
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => handleItemPress(item.entryId, item.food_id, item.log_id, item.num_servings)}>
         
-              <View style={styles.workoutItem}>
-               
-                <View>
-                  <Text style={styles.workoutText}>{item.name}</Text>
-                </View>
-                <View>
-                  <Text style={styles.workoutText}>{ Number((item.num_servings * item.calories_per_serving).toFixed())} cal</Text>
-                </View>
-                  
-                  
-                  
-                
-                
-              </View>
+          <View style={styles.workoutItem}>    
+            <View>
+              <Text style={styles.workoutText}>{item.name}</Text>
+            </View>
+            <View>
+              <Text style={styles.workoutText}>{ Number((item.num_servings * item.calories_per_serving).toFixed())} cal</Text>
+            </View>    
+          </View>
       </TouchableOpacity>
   )}
 
