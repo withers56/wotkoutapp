@@ -83,10 +83,12 @@ const add_food = () => {
       console.log('food to add: ' + JSON.stringify(item));
       
 
-      db.runAsync(
+      await db.runAsync(
           'INSERT INTO foods (name, calories_per_serving, serving_size, protein_per_serving, carbs_per_serving, fat_per_serving) VALUES (?,?,?,?,?,?)',
           [item.name, item.calories_per_serving, item.serving_size, item.protein_per_serving, item.carbs_per_serving, item.fat_per_serving]
         )
+
+      router.back(); 
       
     }
 
