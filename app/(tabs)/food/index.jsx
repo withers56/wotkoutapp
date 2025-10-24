@@ -7,6 +7,8 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Swipeable } from 'react-native-gesture-handler';
+import { PieChart } from "react-native-gifted-charts";
+
 
 
 // import { Collapsible } from '@/components/Collapsible';
@@ -31,7 +33,9 @@ export default function TabTwoScreen() {
   const router = useRouter();
   const db = useSQLiteContext();
 
+  const [pieData, setPieData] = useState([{value: 20}, {value: 40}, {value: 5}]);
   
+ 
 
 //  useEffect(() =>{
 //     //function to either create an empty lof entry, or if they have already logged for the day then fetch the data
@@ -45,6 +49,7 @@ export default function TabTwoScreen() {
         fetchLogData();
       }, [date])
   )
+
 
  const fetchLogData = async () => {
   console.log('in fetch food log');
@@ -112,9 +117,22 @@ export default function TabTwoScreen() {
     setProtein(proteinCounter.toFixed(1));
     setCarbs(carbCounter.toFixed(1));
     setFat(fatCounter.toFixed(1));
+
+    percentageCalc(calorieCounter.toFixed(), (proteinCounter.toFixed(1) * 4))
+    
+
+    setPieData([
+      {value: Number(proteinCounter.toFixed(1)), text: percentageCalc(calorieCounter, (proteinCounter * 4)) + '%', color: '#e41a1c'}, 
+      {value: Number(carbCounter.toFixed(1)), text: percentageCalc(calorieCounter, (carbCounter * 4)) + '%', color: '#377eb8'}, 
+      {value: Number(fatCounter.toFixed(1)), text: percentageCalc(calorieCounter, (fatCounter * 9)) + '%', color: '#4daf4a'}
+    ])
+
   }
  }
   
+ const percentageCalc = (totalCals, partialCals) => {
+    return ((partialCals / totalCals) * 100).toFixed()
+ }
 
   const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -223,6 +241,20 @@ export default function TabTwoScreen() {
       <Text style={styles.text}>Total Calories: </Text>
     </View>
   )
+
+  const renderDot = color => {
+  return (
+        <View
+          style={{
+            height: 10,
+            width: 10,
+            borderRadius: 5,
+            backgroundColor: color,
+            marginRight: 10,
+          }}
+        />
+      );
+  };
   
 
   return (
@@ -279,7 +311,25 @@ export default function TabTwoScreen() {
             // ListFooterComponent={renderFooter}
           />
           <View style={styles.footer}>
-            <Text style={[styles.text, {paddingHorizontal: 10, fontSize: 20}]}>Calories: {calories}, F: {fat}, C: {carbs}, P: {protein}</Text>
+            <View style={{disply: 'flex',flexDirection: 'row', justifyContent:'space-evenly'}}>
+              <View style={{width: '50%', alignItems: 'center'}}>
+                <PieChart 
+                  showText
+                  textColor='black'
+                  data={pieData}
+                  radius={70}/>
+              </View>
+              <View style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', width: '50%'}}>
+                <View>
+                  <Text style={styles.text}>{renderDot('#377eb8')} C: ({carbs}g), {renderDot('#e41a1c')} P: ({protein}g)</Text>
+                </View>
+                <View>
+                  <Text style={styles.text}>{renderDot('#4daf4a')} F: ({fat}g), Calories: {calories}</Text>
+                </View>  
+              </View>  
+            </View>
+            
+            {/* <Text style={[styles.text, {paddingHorizontal: 10, fontSize: 20}]}>Calories: {calories}, F: {fat}, C: {carbs}, P: {protein}</Text> */}
           </View>
       </View>)}
     </SafeAreaView>
@@ -338,11 +388,11 @@ function createStyles(theme, colorScheme) {
     },
     footer: {
     // Styling for your fixed footer
-    height: '12%', // Example fixed height
+    height: '30%', // Example fixed height
     
-    display:'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
+    // display:'flex',
+    // flexDirection: 'row',
+    // justifyContent: 'flex-start',
     // alignItems: 'flex-start',
   },
   workoutItem: {
