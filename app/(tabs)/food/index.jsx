@@ -23,6 +23,9 @@ export default function TabTwoScreen() {
   const [show, setShow] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [calories, setCalories] = useState(0);
+  const [protein, setProtein] = useState(0);
+  const [carbs, setCarbs] = useState(0);
+  const [fat, setFat] = useState(0);
   const [logId, setLogId] = useState();
   const [food, setFood] = useState([]);
   const router = useRouter();
@@ -49,21 +52,11 @@ export default function TabTwoScreen() {
   console.log(await db.getAllAsync('SELECT * FROM foods'));
   
   
-  // const result = await db.getAllAsync
-  //           (`SELECT 
-  //               L.id AS log_id, L.log_date, L.notes, F.name, F.id AS food_id 
-  //             FROM 
-  //               food_logs AS L 
-  //             INNER JOIN 
-  //               log_food_entries AS FLE ON L.id = FLE.log_id 
-  //             INNER JOIN 
-  //               foods AS F ON FLE.food_id = F.id
-  //             WHERE
-  //               L.log_date = '${date.toISOString().split('T')[0]}'`)
+
 
   const result = await db.getAllAsync(
               `SELECT 
-                L.id AS log_id, FLE.id AS entryId, L.log_date, F.name, FLE.num_servings, F.calories_per_serving, F.id AS food_id
+                L.id AS log_id, FLE.id AS entryId, L.log_date, F.name, FLE.num_servings, F.calories_per_serving, F.id AS food_id, F.protein_per_serving, F.fat_per_serving, F.carbs_per_serving
                FROM 
                  food_logs AS L 
                LEFT JOIN 
@@ -88,21 +81,37 @@ export default function TabTwoScreen() {
 
 
   if (result.length > 0) {
+    setIsEmpty(true)
     console.log('there is a log');
+    // console.log(result);
+    
     let calorieCounter = 0;
+    let proteinCounter = 0;
+    let carbCounter = 0;
+    let fatCounter = 0;
     
     setLogId(result[0].log_id)
     setFood(result)
 
     result.forEach(item => {
       console.log(item);
-      calorieCounter = calorieCounter + Number((item.num_servings * item.calories_per_serving).toFixed())
+      calorieCounter = calorieCounter + Number((item.num_servings * item.calories_per_serving))
+      proteinCounter = proteinCounter + Number((item.num_servings * item.protein_per_serving))
+      carbCounter = carbCounter + Number((item.num_servings * item.carbs_per_serving))
+      fatCounter = fatCounter + Number((item.num_servings * item.fat_per_serving))
     })
+    console.log(result[0].entryId);
+    
 
-    if (!result[0].entryId == null) {
+    if (result[0].entryId != null) {
+      console.log('entries, set to view');
+      
       setIsEmpty(false);
     }
-    setCalories(calorieCounter);
+    setCalories(calorieCounter.toFixed());
+    setProtein(proteinCounter.toFixed(1));
+    setCarbs(carbCounter.toFixed(1));
+    setFat(fatCounter.toFixed(1));
   }
  }
   
@@ -260,18 +269,19 @@ export default function TabTwoScreen() {
                   <Text style={styles.buttonText}>Add Food</Text>    
         </Pressable>
       </View>
+      {!isEmpty && (
       <View style={styles.foodEntryContainer}>
-        {isEmpty && (
+        
           <Animated.FlatList
             data={food}
             renderItem={renderFoodList}
             keyExtractor={data => data.entryId}
             // ListFooterComponent={renderFooter}
-          />)}
+          />
           <View style={styles.footer}>
-            <Text style={[styles.text, {paddingHorizontal: 10, fontSize: 20}]}>Total Calories: {calories}</Text>
+            <Text style={[styles.text, {paddingHorizontal: 10, fontSize: 20}]}>Calories: {calories}, F: {fat}, C: {carbs}, P: {protein}</Text>
           </View>
-      </View>
+      </View>)}
     </SafeAreaView>
   )
 }
@@ -329,10 +339,11 @@ function createStyles(theme, colorScheme) {
     footer: {
     // Styling for your fixed footer
     height: '12%', // Example fixed height
+    
     display:'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
+    justifyContent: 'center',
+    // alignItems: 'flex-start',
   },
   workoutItem: {
       flexDirection: 'row',
