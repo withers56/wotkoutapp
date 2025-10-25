@@ -2,7 +2,8 @@ import { ThemeContext } from '@/context/ThemeContext';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { React, useCallback, useContext, useState } from 'react';
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LineChart } from "react-native-gifted-charts";
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,7 +22,7 @@ export default function HomeScreen() {
   const styles = createStyles(theme, colorScheme)
 
   const [entries, setEntries] = useState([]);
-
+  const [lineData, setLineData] = useState([]);
   const router = useRouter();
 
   const db = useSQLiteContext();
@@ -30,7 +31,8 @@ export default function HomeScreen() {
   "July", "August", "September", "October", "November", "December"
 ];
 
-  
+  const data = [{value: 15}, {value: 30}, {value: 26}, {value: 40},{value: 15}, {value: 30}, {value: 26}, {value: 40},{value: 15}, {value: 30}, {value: 26}, {value: 40},{value: 15}, {value: 30}, {value: 26}, {value: 40}];
+
 
   // useEffect(() => {
   //   loadWeightHistory();
@@ -43,11 +45,25 @@ export default function HomeScreen() {
       )
 
   const loadWeightHistory = async () => {
+    let dataArray = [];
     // await db.runAsync('INSERT INTO weight (body_weight, unit_of_measure, date) VALUES (?,?,?)',
     //     [297.7, 'lbs', new Date() + '']);    
     const result = await db.getAllAsync('SELECT id, body_weight, unit_of_measure, date FROM weight ORDER BY date DESC');
-   console.log(result);
+    console.log(result);
    
+    result.map(item => {
+      console.log(item.body_weight);
+
+      const date = new Date(item.date);
+
+      const month = (date.getUTCMonth() + 1).toString().padStart(2, '0'); // Months are 0-based, so add 1
+      const day = date.getUTCDate().toString().padStart(2, '0'); // Get day of the month
+
+      const formattedDate = `${month}/${day}`;
+
+      dataArray.unshift({value: item.body_weight, label: formattedDate})
+    })
+    setLineData(dataArray);
     setEntries(result);
   }
 
@@ -99,6 +115,23 @@ export default function HomeScreen() {
                     </Pressable>
                     
                 </View>
+                <View style={styles.chartContainer}>
+                  <LineChart
+                    
+                    width={Dimensions.get('window').width - 70}
+                    rulesColor="gray"
+                    rulesType="solid"
+                    noOfSections={3}
+                    xAxisColor={'grey'}
+                    yAxisColor={'grey'}
+                    yAxisTextStyle={{color: 'lightgray'}}
+                    xAxisLabelTextStyle={{color: 'lightgray'}}
+                    color1='grey'
+                    color={'purple'}
+                    thickness={3}
+                    dataPointsColor={'red'}
+                    data={lineData}/>;
+                </View>
                 <Animated.FlatList
                   data={entries}
                   renderItem={renderListItem}
@@ -116,6 +149,10 @@ function createStyles(theme, colorScheme) {
       flex: 1,
       backgroundColor: theme.background,
       color: 'white'
+    },
+    chartContainer: {
+      backgroundColor: theme.background,
+      paddingEnd: 10
     },
     text: {
       color: theme.text
