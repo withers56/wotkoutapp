@@ -118,19 +118,21 @@ export default function TabTwoScreen() {
     setCarbs(carbCounter.toFixed(1));
     setFat(fatCounter.toFixed(1));
 
-    percentageCalc(calorieCounter.toFixed(), (proteinCounter.toFixed(1) * 4))
+    // percentageCalc(calorieCounter.toFixed(), (proteinCounter.toFixed(1) * 4))
     
 
     setPieData([
-      {value: Number(proteinCounter.toFixed(1)), text: percentageCalc(calorieCounter, (proteinCounter * 4)) + '%', color: '#e41a1c'}, 
-      {value: Number(carbCounter.toFixed(1)), text: percentageCalc(calorieCounter, (carbCounter * 4)) + '%', color: '#377eb8'}, 
-      {value: Number(fatCounter.toFixed(1)), text: percentageCalc(calorieCounter, (fatCounter * 9)) + '%', color: '#4daf4a'}
+      {value: Number(proteinCounter.toFixed(1)), text: percentageCalc(calorieCounter, (proteinCounter * 4)) + '%', color: '#d24b62'}, 
+      {value: Number(carbCounter.toFixed(1)), text: percentageCalc(calorieCounter, (carbCounter * 4)) + '%', color: '#3d98c1'}, 
+      {value: Number(fatCounter.toFixed(1)), text: percentageCalc(calorieCounter, (fatCounter * 9)) + '%', color: '#85b063'}
     ])
 
   }
  }
   
  const percentageCalc = (totalCals, partialCals) => {
+  console.log(((partialCals / totalCals) * 100));
+  
     return ((partialCals / totalCals) * 100).toFixed()
  }
 
@@ -313,7 +315,8 @@ export default function TabTwoScreen() {
           <View style={styles.footer}>
             <View style={{disply: 'flex',flexDirection: 'row', justifyContent:'space-evenly'}}>
               <View style={{width: '50%', alignItems: 'center'}}>
-                <PieChart 
+                <PieChart
+                  fontWeight='bold' 
                   showText
                   textColor='black'
                   data={pieData}
@@ -321,10 +324,10 @@ export default function TabTwoScreen() {
               </View>
               <View style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', width: '50%'}}>
                 <View>
-                  <Text style={styles.text}>{renderDot('#377eb8')} C: ({carbs}g), {renderDot('#e41a1c')} P: ({protein}g)</Text>
+                  <Text style={styles.text}>{renderDot('#3d98c1')} C: ({carbs}g), {renderDot('#d24b62')} P: ({protein}g)</Text>
                 </View>
                 <View>
-                  <Text style={styles.text}>{renderDot('#4daf4a')} F: ({fat}g), Calories: {calories}</Text>
+                  <Text style={styles.text}>{renderDot('#85b063')} F: ({fat}g), Calories: {calories}</Text>
                 </View>  
               </View>  
             </View>

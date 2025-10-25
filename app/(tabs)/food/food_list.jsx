@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { React, useCallback, useContext, useEffect, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 
 
@@ -61,6 +61,8 @@ const log_food = () => {
     const handleFoodPress = (id) => {
       console.log('clicked food with id: ' + id);
 
+      //update tiems_selected column0.
+
       //route to log food folder
 
       // router.push(`/food/log_food`)
@@ -97,20 +99,18 @@ const log_food = () => {
     }
   
     return (
-    <View style={styles.container}>
-        
-
+    <SafeAreaView style={styles.container}>
         <TextInput 
           style={styles.searchInput}
           placeholder='search food'
           value={foodQuery}
           onChangeText={handleSearchFilter}/>
         <Animated.FlatList 
-          // style={{marginBottom: 80}}
+          style={{marginBottom: 50}}
           data={foodDataFiltered}
           renderItem={renderFoods}
           keyExtractor={data => data.id}/>
-    </View>
+    </SafeAreaView>
   )
 }
 
