@@ -1,13 +1,14 @@
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, Button, Platform, Animated, ScrollView, TouchableOpacity } from 'react-native'
-import { React, useState, useContext, useEffect, useCallback} from 'react'
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "@/context/ThemeContext";
-import DateTimePicker from '@react-native-community/datetimepicker';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Haptics from 'expo-haptics';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { React, useCallback, useContext, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { PieChart } from "react-native-gifted-charts";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 
@@ -144,6 +145,8 @@ export default function TabTwoScreen() {
   
 
   const handleBack = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+
     console.log('clicked back');
     setDate(new Date(date.setDate(date.getDate() - 1)));
     setShow(false)
@@ -151,6 +154,8 @@ export default function TabTwoScreen() {
   }
 
   const handleForward = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+
     console.log('clicked forward');
     setDate(new Date(date.setDate(date.getDate() + 1)));
     setShow(false)
@@ -158,8 +163,9 @@ export default function TabTwoScreen() {
   }
 
   const handleDatePick = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+
     console.log(show);
-    
     console.log('handle date selection');
 
     handleCalendarToggle()
@@ -171,6 +177,7 @@ export default function TabTwoScreen() {
   }
 
   const handleAddFood = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     console.log('clicked add food');
     // router.navigate('/food/food_list')
 
@@ -208,6 +215,7 @@ export default function TabTwoScreen() {
     }
 
       const handleItemPress = (entryId, foodId, logId, servings) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         console.log('clicked entry with entryid: ' + entryId);
         console.log('clicked entry with foodid: ' + foodId);
         console.log('clicked entry with logid: ' + logId);
@@ -323,11 +331,13 @@ export default function TabTwoScreen() {
                   radius={70}/>
               </View>
               <View style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', width: '50%'}}>
-                <View>
-                  <Text style={styles.text}>{renderDot('#3d98c1')} C: ({carbs}g), {renderDot('#d24b62')} P: ({protein}g)</Text>
+                <View style={{display: 'flex', flexDirection: 'row', }}>
+                  <Text style={[styles.text, {width: '50%'}]}>{renderDot('#3d98c1')} C: ({carbs}g)</Text>
+                  <Text style={[styles.text, {width: '50%'}]}> {renderDot('#d24b62')} P: ({protein}g)</Text>
                 </View>
-                <View>
-                  <Text style={styles.text}>{renderDot('#85b063')} F: ({fat}g), Calories: {calories}</Text>
+                <View style={{display: 'flex', flexDirection: 'row'}}>
+                  <Text style={[styles.text, {width: '50%'}]}>{renderDot('#85b063')} F: ({fat}g)</Text>
+                  <Text style={[styles.text, {width: '50%'}]}> Cal: {calories}</Text>
                 </View>  
               </View>  
             </View>

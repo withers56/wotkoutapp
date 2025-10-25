@@ -29,8 +29,9 @@ const log_food = () => {
               <AntDesign name="check" size={24} color={theme.text} />
             </Pressable>
           ),
+          title: `${entry_id != undefined ? 'Update Food' : 'Add Food'}`
         });
-    }, [navigation, foodItem, numOfServings]);
+    }, [navigation, foodItem, numOfServings, entry_id]);
 
     useEffect(() => {
       console.log('logId: ' + log_id + ' food ID: ' + food_id);
