@@ -252,7 +252,7 @@ const start_workout = () => {
                         onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
                         placeholder='0'/> */}
                     <Pressable
-                        // onPress={handleCompletedSet}
+                        onPress={() => handleRemoveSet(item)}
                         style={styles.griditemAdd}    
                         >
                         <Text style={styles.text}>
@@ -261,6 +261,32 @@ const start_workout = () => {
                     </Pressable>
                 </View>
     )
+
+    const handleRemoveSet = (item) => {
+        console.log(item);
+        console.log(exercises);
+        
+        // Remove the set from the exercises array and update trackers
+        setExercises(prevExercises => {
+            const newExercises = prevExercises.map(ex => {
+                if (ex.id !== item.exerciseId) return ex;
+                const newSets = ex.sets.filter(s => s.id !== item.id);
+                return { ...ex, sets: newSets };
+            });
+
+            // If the only item was the empty placeholder, keep the placeholder
+            const cleaned = newExercises.filter((ex) => !(ex.id === '' && ex.sets.length === 0));
+            return cleaned.length ? cleaned : [{ id: '', name: '', sets: [] }];
+        });
+
+        // Update volume and set counters (safely coerce values to numbers)
+        const weight = Number(item.weight) || 0;
+        const reps = Number(item.reps) || 0;
+        const volumeToSubtract = weight * reps;
+
+        setVolumeTracker(prev => Math.max(0, prev - volumeToSubtract));
+        setSetTracker(prev => Math.max(0, prev - 1));
+    }
 
     const handleExerciseDelete = (item) => {
         console.log(item);
@@ -275,7 +301,7 @@ const start_workout = () => {
         })
         setVolumeTracker(volumeTracker - volumeSubtractCounter);
         setSetTracker(setTracker - setsSubtractCounter);
-        
+
         const newArray = exercises.filter(obj => obj.id !== item.id);
 
         console.log(newArray);
