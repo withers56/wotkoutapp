@@ -117,6 +117,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.chartContainer}>
                   <LineChart
+                    maxValue={400}
                     
                     width={Dimensions.get('window').width - 70}
                     rulesColor="gray"
