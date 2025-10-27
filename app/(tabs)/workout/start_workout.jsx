@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { ThemeContext } from "@/context/ThemeContext";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useContext, useEffect, useState, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ThemeText from "../../../context/ThemeText";
@@ -262,70 +262,101 @@ const start_workout = () => {
                 </View>
     )
 
-    const renderExercise = ({ item }) => (
-            <View style={styles.exerciseCurrentContainer}>
-                <View style={styles.exerciseNameContainer}>
-                    <Text style={[styles.text, {fontSize: 24}]}>{item.name}</Text>
-                </View>
-                {exercises[0].id != '' ? (<View style={[styles.exerciseData, styles.bottomBorder]}>
-                    <Text style={[styles.text, styles.gridItem]}>Set</Text>
-                    {/* <ThemeText>Previous</ThemeText> */}
-                    <Text style={[styles.text, styles.gridItem]}>Lbs</Text>
-                    <Text style={[styles.text, styles.gridItem]}>Reps</Text>
-                    <Text style={[styles.text, styles.griditemAdd]}>
-                        <FontAwesome name="check" size={24} color={theme.color} />
-                    </Text>
-                </View>) : ('')}
-                
-                <Animated.FlatList 
-                    data={item.sets}
-                    renderItem={renderDataRow}
-                    keyExtractor={data => data.id}
-                    />
+    const handleExerciseDelete = (id) => {
+        console.log('clicked exercise with id: ' + id);
 
+        const newArray = exercises.filter(obj => obj.id !== id);
 
-                {exercises[0].id === '' || item.id != currentExerciseId ? ('') : (
-                    <View style={styles.exerciseData}>
-                        <Text style={[styles.text, styles.gridItem]}>{item.sets.length + 1}</Text>
-                        {/* <ThemeText>-</ThemeText> */}
-                        <View style={styles.gridItem}>
-                            <TextInput
-                            style={[styles.input, styles.text, {fontSize: 16}]}
-                            keyboardType="numeric" 
-                            value={currentSet.weight}
-                            onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
-                            placeholder='0'/>
-                        </View>
-                        <View style={styles.gridItem}>
-                            <TextInput
-                            style={[styles.input, styles.text, {fontSize: 16}]}
-                            keyboardType="numeric"
-                            value={currentSet.reps}
-                            onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
-                            placeholder='0'/>
-                        </View>
+        console.log(newArray);
 
+        if (newArray.length === 0) {
+            setExercises([{
+                id: '',
+                name: '',
+                sets: []
+            }])
+        } else {
+            setExercises(newArray)
+
+        }
+        
+
+    }
+
+    const renderExercise = ({ item }) => {
+        console.log(item);
+        
+
+            return (
+                    <View style={styles.exerciseCurrentContainer}>
                         <TouchableOpacity
-                            style={styles.griditemAdd}
-                            onPress={handleCompletedSet}>
-                            <Text style={styles.text}>
-                                <FontAwesome name="check" size={24} color={theme.colorInactive} />
-                            </Text>        
+                            onPress={() => handleExerciseDelete(item.id)}>
+                            <View style={styles.exerciseNameContainer}>
+                                <Text style={[styles.text, {fontSize: 24}]}>{item.name}</Text>
+                            </View> 
                         </TouchableOpacity>
                         
-                        {/* <Pressable
-                            style={styles.griditemAdd}
-                            onPress={handleCompletedSet}>
-                            
-                        </Pressable> */}
+                        {exercises[0].id != '' ? (<View style={[styles.exerciseData, styles.bottomBorder]}>
+                            <Text style={[styles.text, styles.gridItem]}>Set</Text>
+                            {/* <ThemeText>Previous</ThemeText> */}
+                            <Text style={[styles.text, styles.gridItem]}>Lbs</Text>
+                            <Text style={[styles.text, styles.gridItem]}>Reps</Text>
+                            <Text style={[styles.text, styles.griditemAdd]}>
+                                <FontAwesome name="check" size={24} color={theme.color} />
+                            </Text>
+                        </View>) : ('')}
+                        
+                        <Animated.FlatList 
+                            data={item.sets}
+                            renderItem={renderDataRow}
+                            keyExtractor={data => data.id}
+                            />
+
+
+                        {exercises[0].id === '' || item.id != currentExerciseId ? ('') : (
+                            <View style={styles.exerciseData}>
+                                <Text style={[styles.text, styles.gridItem]}>{item.sets.length + 1}</Text>
+                                {/* <ThemeText>-</ThemeText> */}
+                                <View style={styles.gridItem}>
+                                    <TextInput
+                                    style={[styles.input, styles.text, {fontSize: 16}]}
+                                    keyboardType="numeric" 
+                                    value={currentSet.weight}
+                                    onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, weight: value}))}}
+                                    placeholder='0'/>
+                                </View>
+                                <View style={styles.gridItem}>
+                                    <TextInput
+                                    style={[styles.input, styles.text, {fontSize: 16}]}
+                                    keyboardType="numeric"
+                                    value={currentSet.reps}
+                                    onChangeText={(value) => {setCurrentSet((prevData) => ({...prevData, reps: value}))}}
+                                    placeholder='0'/>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={styles.griditemAdd}
+                                    onPress={handleCompletedSet}>
+                                    <Text style={styles.text}>
+                                        <FontAwesome name="check" size={24} color={theme.colorInactive} />
+                                    </Text>        
+                                </TouchableOpacity>
+                                
+                                {/* <Pressable
+                                    style={styles.griditemAdd}
+                                    onPress={handleCompletedSet}>
+                                    
+                                </Pressable> */}
+                            </View>
+                        )}
+
+
+                        
+
                     </View>
-                )}
-
-
                 
 
-            </View>
-    )
+    )}
 
     const renderExerciseList = ({ item }) => (
         <TouchableOpacity onPress={() => handleExerciseSelection(item)}>
