@@ -262,10 +262,21 @@ const start_workout = () => {
                 </View>
     )
 
-    const handleExerciseDelete = (id) => {
-        console.log('clicked exercise with id: ' + id);
+    const handleExerciseDelete = (item) => {
+        console.log(item);
 
-        const newArray = exercises.filter(obj => obj.id !== id);
+        let volumeSubtractCounter = 0;
+        let setsSubtractCounter = 0;
+
+        item.sets.map(set => {
+            console.log(set);
+            setsSubtractCounter = setsSubtractCounter + 1;
+            volumeSubtractCounter = volumeSubtractCounter + (set.reps * set.weight);
+        })
+        setVolumeTracker(volumeTracker - volumeSubtractCounter);
+        setSetTracker(setTracker - setsSubtractCounter);
+        
+        const newArray = exercises.filter(obj => obj.id !== item.id);
 
         console.log(newArray);
 
@@ -281,16 +292,16 @@ const start_workout = () => {
         }
         
 
+
     }
 
     const renderExercise = ({ item }) => {
-        console.log(item);
         
 
             return (
                     <View style={styles.exerciseCurrentContainer}>
                         <TouchableOpacity
-                            onPress={() => handleExerciseDelete(item.id)}>
+                            onPress={() => handleExerciseDelete(item)}>
                             <View style={styles.exerciseNameContainer}>
                                 <Text style={[styles.text, {fontSize: 24}]}>{item.name}</Text>
                             </View> 
