@@ -61,8 +61,10 @@ export default function HomeScreen() {
 
       const formattedDate = `${month}/${day}`;
 
-      dataArray.unshift({value: item.body_weight, label: formattedDate})
+      dataArray.unshift({value: Math.round(item.body_weight), label: formattedDate})
     })
+    console.log('Data array: ' + dataArray[0].value);
+    
     setLineData(dataArray);
     setEntries(result);
   }
@@ -118,12 +120,15 @@ export default function HomeScreen() {
                 <View style={styles.chartContainer}>
                   <Text>
                     <LineChart
-                      maxValue={400}
+                      maxValue={250} // eventually make dynamic so that it reflects the highest weight logged
+                      // stepValue={100}
+                      yAxisOffset={100} // eventually mkae dynamic so that it reflects your lowest weight with a bufer
                       
+                      formatYLabel={(value) => `${Math.round(value)}`} //make y axis values whole numbers
                       width={Dimensions.get('window').width - 70}
                       rulesColor="gray"
                       rulesType="solid"
-                      noOfSections={3}
+                      noOfSections={2}
                       xAxisColor={'grey'}
                       yAxisColor={'grey'}
                       yAxisTextStyle={{color: 'lightgray'}}
