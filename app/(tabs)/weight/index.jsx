@@ -5,7 +5,7 @@ import { React, useCallback, useContext, useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LineChart } from "react-native-gifted-charts";
 import Animated from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getMaxWeight, getMinWeight } from '@/db/dbstatments';
 
 
@@ -28,6 +28,7 @@ export default function HomeScreen() {
   const [lineData, setLineData] = useState([]);
   const router = useRouter();
 
+  const insets = useSafeAreaInsets();
   const db = useSQLiteContext();
 
   const monthNames = ["January", "February", "March", "April", "May", "June",
@@ -150,7 +151,9 @@ export default function HomeScreen() {
                 <Animated.FlatList
                   data={entries}
                   renderItem={renderListItem}
-                  keyExtractor={data => data.id} />
+                  keyExtractor={data => data.id} 
+                  contentContainerStyle={{ paddingBottom: insets.bottom + 64 }}
+/>
     
                 
             </SafeAreaView>
