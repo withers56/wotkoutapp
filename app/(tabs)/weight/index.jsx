@@ -6,6 +6,7 @@ import { Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View } from 
 import { LineChart } from "react-native-gifted-charts";
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getMaxWeight, getMinWeight } from '@/db/dbstatments';
 
 
 // import { Image } from 'expo-image';
@@ -21,6 +22,8 @@ export default function HomeScreen() {
   const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
   const styles = createStyles(theme, colorScheme)
 
+  const [maxWeight, setMaxWeight] = useState(500);
+  const [minWeight, setMinWeight] = useState(100);
   const [entries, setEntries] = useState([]);
   const [lineData, setLineData] = useState([]);
   const router = useRouter();
@@ -63,8 +66,14 @@ export default function HomeScreen() {
 
       dataArray.unshift({value: Math.round(item.body_weight), label: formattedDate})
     })
-    console.log('Data array: ' + dataArray[0].value);
+    // console.log('Data array: ' + dataArray[0].value);
+    const maxWeightResult = await db.getFirstAsync(getMaxWeight());
+    const minWeightResult = await db.getFirstAsync(getMinWeight());
     
+    
+    
+    setMaxWeight(maxWeightResult.max_weight);
+    setMinWeight(minWeightResult.min_weight);
     setLineData(dataArray);
     setEntries(result);
   }
@@ -120,10 +129,8 @@ export default function HomeScreen() {
                 <View style={styles.chartContainer}>
                   <Text>
                     <LineChart
-                      maxValue={250} // eventually make dynamic so that it reflects the highest weight logged
-                      // stepValue={100}
-                      yAxisOffset={100} // eventually mkae dynamic so that it reflects your lowest weight with a bufer
-                      
+                      maxValue={maxWeight - minWeight + 50}
+                      yAxisOffset={minWeight - 25}
                       formatYLabel={(value) => `${Math.round(value)}`} //make y axis values whole numbers
                       width={Dimensions.get('window').width - 70}
                       rulesColor="gray"

@@ -424,6 +424,22 @@ export function getExerciseIdByName(name) {
   `
 }
 
+export function getMaxWeight() {
+  return `
+  SELECT MAX(body_weight) AS max_weight
+  FROM weight
+  LIMIT 1;
+  `
+}
+
+export function getMinWeight() {
+  return `
+  SELECT MIN(body_weight) AS min_weight
+  FROM weight
+  LIMIT 1;
+  `
+}
+
 
 
 // CREATE TABLE IF NOT EXISTS WorkoutExercises (
