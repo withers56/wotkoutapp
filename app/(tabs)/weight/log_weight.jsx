@@ -69,6 +69,11 @@ const log_weight = () => {
 
     console.log(result);
 
+    //results will be null if first time, if so return and use default state values
+    if(result === null) {
+      return
+    }
+
     setRecentWeight(result.body_weight);
     setUOA(result.unit_of_measure);
   }

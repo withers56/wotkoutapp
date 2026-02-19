@@ -116,22 +116,24 @@ export default function HomeScreen() {
                     
                 </View>
                 <View style={styles.chartContainer}>
-                  <LineChart
-                    maxValue={400}
-                    
-                    width={Dimensions.get('window').width - 70}
-                    rulesColor="gray"
-                    rulesType="solid"
-                    noOfSections={3}
-                    xAxisColor={'grey'}
-                    yAxisColor={'grey'}
-                    yAxisTextStyle={{color: 'lightgray'}}
-                    xAxisLabelTextStyle={{color: 'lightgray'}}
-                    color1='grey'
-                    color={'purple'}
-                    thickness={3}
-                    dataPointsColor={'red'}
-                    data={lineData}/>;
+                  <Text>
+                    <LineChart
+                      maxValue={400}
+                      
+                      width={Dimensions.get('window').width - 70}
+                      rulesColor="gray"
+                      rulesType="solid"
+                      noOfSections={3}
+                      xAxisColor={'grey'}
+                      yAxisColor={'grey'}
+                      yAxisTextStyle={{color: 'lightgray'}}
+                      xAxisLabelTextStyle={{color: 'lightgray'}}
+                      color1='grey'
+                      color={'purple'}
+                      thickness={3}
+                      dataPointsColor={'red'}
+                      data={lineData}/>;
+                  </Text>    
                 </View>
                 <Animated.FlatList
                   data={entries}
