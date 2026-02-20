@@ -539,17 +539,17 @@ const start_workout = () => {
             </Pressable>
         </View>
         <View style={styles.metricsContainer}>
-            <View>
+            <View style={styles.metricsItem}>
                 <ThemeText>Volume</ThemeText>
-                <ThemeText>{volumeTracker}</ThemeText>
+                <ThemeText style={styles.metricValue}>{volumeTracker}</ThemeText>
             </View>
-            <View>
+            <View style={styles.metricsItem}>
                 <ThemeText>Sets</ThemeText>
-                <ThemeText>{setTracker}</ThemeText>
+                <ThemeText style={styles.metricValue}>{setTracker}</ThemeText>
             </View>
-            <View>
+            <View style={styles.metricsItem}>
                 <ThemeText>Time</ThemeText>
-                <ThemeText>{new Date(timer * 1000).toISOString().substring(14, 19)}</ThemeText>
+                <ThemeText style={styles.metricValue}>{new Date(timer * 1000).toISOString().substring(14, 19)}</ThemeText>
             </View>
         </View>
         <KeyboardAvoidingView
@@ -709,6 +709,14 @@ function createStyles(theme, colorScheme) {
         borderBottomWidth: 1,
         width: '100%',
         maxWidth: 1024,
+    },
+    metricsItem: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    metricValue: {
+        textAlign: 'center'
     },
     bottomBorder: {
         borderBottomColor: 'gray',
