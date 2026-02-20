@@ -6,8 +6,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { getExerciseIdByName, getExercisePB, getWorkoutInfoById } from "../../../db/dbstatments";
+import { getExerciseIdByName, getExercisePB, getWorkoutInfoById, getAllWorkouts, getWorkoutIndexPageData } from "../../../db/dbstatments";
 import { Swipeable } from "react-native-gesture-handler";
+
+import { convertTimes, spliceTime } from "../../../constants/util";
 
 
 
@@ -29,11 +31,13 @@ export default function Workout() {
     const db = useSQLiteContext();
 
     const loadHistory = async () => {
-      const result = await db.getAllAsync("SELECT * FROM workouts ORDER BY id DESC");
-      const sets = await db.getAllAsync("SELECT * FROM sets");
+      const result = await db.getAllAsync(getWorkoutIndexPageData());
+      console.log(result);
+      
+      // const sets = await db.getAllAsync("SELECT * FROM sets");
 
-      // console.log();
-      const pb = await db.getAllAsync(getExercisePB(87))
+      // console.log(sets);
+      // const pb = await db.getAllAsync(getExercisePB(87))
 
      
       
@@ -47,16 +51,19 @@ export default function Workout() {
 
 
       // const test = await db.getAllAsync(
-      //   "SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w INNER JOIN sets AS ws ON w.id = ws.workout_id INNER JOIN sets AS s ON ws.set_id = s.id INNER JOIN exercises AS e ON s.exercise_id = e.id");
+        // "SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w INNER JOIN sets AS ws ON w.id = ws.workout_id INNER JOIN sets AS s ON ws.set_id = s.id INNER JOIN exercises AS e ON s.exercise_id = e.id;");
 
-      // const test = await db.getAllAsync("SELECT weight, reps FROM sets INNER JOIN workouts on workouts.id = sets.workout_id ORDER BY workouts.id")
-      const test = await db.getAllAsync("SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w LEFT OUTER JOIN sets AS s ON w.id = s.workout_id LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id")
-
-
-      test.sort((a, b) => {
-        return a.id - b.id;
-      });
       // console.log(test);
+        
+      // const test = await db.getAllAsync("SELECT weight, reps FROM sets INNER JOIN workouts on workouts.id = sets.workout_id ORDER BY workouts.id")
+      // const test = await db.getAllAsync("SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w LEFT OUTER JOIN sets AS s ON w.id = s.workout_id LEFT OUTER JOIN exercises AS e ON s.exercise_id = e.id")
+      // const test = await db.getAllAsync("SELECT w.start_time, w.name, w.end_time, SUM(s.weight * s.reps) AS volume FROM workouts AS w JOIN sets AS s ON w.id = s.workout_id WHERE w.id = 2");
+
+      const test = await db.getAllAsync(getWorkoutIndexPageData());
+      // test.sort((a, b) => {
+      //   return a.id - b.id;
+      // });
+      console.log(test);
 
 
       
@@ -272,16 +279,13 @@ export default function Workout() {
           <View style={styles.workoutItem}>
             {/* <Text style={styles.workoutText}>{item.name}</Text> */}
             <View>
+              <Text style={styles.workoutText}>{item.name}</Text>
               <Text style={styles.workoutText}>{item.start_time}</Text>
-              {/* <Text style={styles.workoutText}>{item.end_time}</Text> */}
+              <View style={styles.workoutCardMetrics}>
+                <Text style={styles.workoutText}>Volume:{item.volume}</Text>
+                <Text style={styles.workoutText}>Time: {convertTimes(item.end_time, item.start_time)}</Text>
+              </View>    
             </View>
-            {/* <View>
-              <Pressable 
-                style={styles.button}
-                onPress={() => {handleDelete(item.id)}}>
-                <Text>Delete</Text>
-              </Pressable>  
-            </View> */}
           </View>
         </TouchableOpacity>
       </Swipeable>
@@ -360,6 +364,13 @@ function createStyles(theme, colorScheme) {
       fontSize: 18,
       fontFamily: 'Inter_500Medium',
       color: theme.text,
+    },
+    workoutCardMetrics: {
+      display: 'flex',
+      flexDirection: 'row',
+      gap: 10,
+      
+      
     }
   })
 }

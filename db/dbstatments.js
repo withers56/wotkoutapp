@@ -440,6 +440,30 @@ export function getMinWeight() {
   `
 }
 
+export function getAllWorkouts() {
+  return `
+    SELECT * 
+    FROM workouts 
+    ORDER BY id DESC;
+  `
+}
+
+export function getAllSets() {
+  return `
+    SELECT * 
+    FROM sets;
+  `
+}
+
+export function getWorkoutIndexPageData() {
+  return `
+  SELECT w.id, w.start_time, w.name, w.end_time, SUM(s.weight * s.reps) AS volume 
+  FROM workouts AS w 
+  JOIN sets AS s 
+  ON w.id = s.workout_id;
+  `
+}
+
 
 
 // CREATE TABLE IF NOT EXISTS WorkoutExercises (
