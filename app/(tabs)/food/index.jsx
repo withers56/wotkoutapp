@@ -423,7 +423,7 @@ function createStyles(theme, colorScheme) {
     },
     workoutText: {
       // flex: 1,
-      fontSize: 18,
+      fontSize: 14,
       fontFamily: 'Inter_500Medium',
       color: theme.text,
     }
