@@ -23,6 +23,9 @@ export const spliceTime = (time) => {
     }
 
 export function convertTimes (end_time, start_time) {
+    if (end_time === null || start_time === null) {
+      return '';
+    };
     const time = (spliceTime(end_time) - spliceTime(start_time)) * 1000;
     return new Date(time).toISOString().substring(14, 19)
-}    
+}

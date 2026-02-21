@@ -457,10 +457,7 @@ export function getAllSets() {
 
 export function getWorkoutIndexPageData() {
   return `
-  SELECT w.id, w.start_time, w.name, w.end_time, SUM(s.weight * s.reps) AS volume 
-  FROM workouts AS w 
-  JOIN sets AS s 
-  ON w.id = s.workout_id;
+  SELECT workouts.id, name, start_time, end_time, SUM(sets.reps * sets.weight) AS volume FROM workouts INNER JOIN sets ON workouts.id = sets.workout_id GROUP BY workouts.id ORDER BY workouts.id DESC;
   `
 }
 

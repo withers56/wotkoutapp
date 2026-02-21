@@ -100,7 +100,7 @@ export default function HomeScreen() {
             >
             <View style={styles.weightItem}>
               <View>
-                <Text style={styles.weightText}>{monthNames[new Date(item.date).getMonth()]} {new Date(item.date).getDate()}, {new Date(item.date).getFullYear()}</Text>
+                <Text style={styles.weightTitleText}>{monthNames[new Date(item.date).getMonth()]} {new Date(item.date).getDate()}, {new Date(item.date).getFullYear()}</Text>
                 <Text style={styles.weightText}>{item.body_weight} {item.unit_of_measure}</Text>
               </View>
               <View>
@@ -210,9 +210,15 @@ function createStyles(theme, colorScheme) {
       marginHorizontal: 'auto',
       pointerEvents: 'auto',
     },
-    weightText: {
+    weightTitleText: {
       // flex: 1,
       fontSize: 18,
+      fontFamily: 'Inter_500Medium',
+      color: theme.text,
+    },
+    weightText: {
+      // flex: 1,
+      fontSize: 14,
       fontFamily: 'Inter_500Medium',
       color: theme.text,
     }

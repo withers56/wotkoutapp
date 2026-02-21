@@ -31,8 +31,18 @@ export default function Workout() {
     const db = useSQLiteContext();
 
     const loadHistory = async () => {
+      // const isEmpty = (await db.getAllAsync("SELECT * FROM workouts")).length === 0;
+
+      // if (isEmpty) {
+      //   return
+      // }
+
       const result = await db.getAllAsync(getWorkoutIndexPageData());
-      console.log(result);
+      // const result = await db.getAllAsync(getAllWorkouts());
+      // console.log(isEmpty);
+
+      // console.log(await db.getAllAsync("SELECT * FROM workouts"));
+      
       
       // const sets = await db.getAllAsync("SELECT * FROM sets");
 
@@ -50,8 +60,7 @@ export default function Workout() {
 
 
 
-      // const test = await db.getAllAsync(
-        // "SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w INNER JOIN sets AS ws ON w.id = ws.workout_id INNER JOIN sets AS s ON ws.set_id = s.id INNER JOIN exercises AS e ON s.exercise_id = e.id;");
+      // const test = await db.getAllAsync("SELECT w.id, w.start_time, s.weight, s.reps, e.name FROM workouts AS w INNER JOIN sets AS ws ON w.id = ws.workout_id INNER JOIN sets AS s ON ws.set_id = s.id INNER JOIN exercises AS e ON s.exercise_id = e.id;");
 
       // console.log(test);
         
@@ -60,16 +69,18 @@ export default function Workout() {
       // const test = await db.getAllAsync("SELECT w.start_time, w.name, w.end_time, SUM(s.weight * s.reps) AS volume FROM workouts AS w JOIN sets AS s ON w.id = s.workout_id WHERE w.id = 2");
 
       const test = await db.getAllAsync(getWorkoutIndexPageData());
+      // const test = await db.getAllAsync("SELECT workouts.id, name, start_time, end_time, SUM(sets.reps * sets.weight) AS volume FROM workouts INNER JOIN sets ON workouts.id = sets.workout_id GROUP BY workouts.id;");
       // test.sort((a, b) => {
       //   return a.id - b.id;
       // });
-      console.log(test);
+      // console.log(test);
 
 
       
       // console.log(sets);
 
     
+      // console.log(result);
       
       setWorkoutHistory(result);
     }
@@ -116,6 +127,8 @@ export default function Workout() {
     }
 
     const handleDelete = async (id) => {
+      console.log('in delete func');
+      
       try {
         await db.runAsync("DELETE FROM workouts WHERE id = ?;", [id]);
         loadHistory()
@@ -279,7 +292,7 @@ export default function Workout() {
           <View style={styles.workoutItem}>
             {/* <Text style={styles.workoutText}>{item.name}</Text> */}
             <View>
-              <Text style={styles.workoutText}>{item.name}</Text>
+              <Text style={styles.workoutTitleText}>{item.name}</Text>
               <Text style={styles.workoutText}>{item.start_time}</Text>
               <View style={styles.workoutCardMetrics}>
                 <Text style={styles.workoutText}>Volume:{item.volume}</Text>
@@ -300,7 +313,7 @@ export default function Workout() {
                   onPress={handleSubmit}>
                   <Text style={styles.buttonText}>Start Workout</Text>    
                 </Pressable>
-                <Text>{workout.start_time != null ? workout.start_time.getTime() : ''}</Text>
+                {/* <Text>{workout.start_time != null ? workout.start_time.getTime() : ''}</Text> */}
             </View>
             <Animated.FlatList
               style={{marginBottom: 50}}
@@ -361,9 +374,16 @@ function createStyles(theme, colorScheme) {
     },
     workoutText: {
       // flex: 1,
+      fontSize: 14,
+      fontFamily: 'Inter_500Medium',
+      color: theme.text,
+    },
+    workoutTitleText: {
+      // flex: 1,
       fontSize: 18,
       fontFamily: 'Inter_500Medium',
       color: theme.text,
+      paddingBottom: 4
     },
     workoutCardMetrics: {
       display: 'flex',
