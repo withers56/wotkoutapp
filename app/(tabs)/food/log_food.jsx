@@ -104,6 +104,15 @@ const log_food = () => {
 
       return '(' + (data[0] * numOfServings).toFixed() + data[1] + ')';
     }
+
+    const validateServingInput = (input) => {
+      if (input == '.') {
+        setNumOfServings(0);
+      }
+      else {
+        setNumOfServings(input);
+      }
+    }
   
     return (
           <ScrollView style={styles.container}>
@@ -123,7 +132,7 @@ const log_food = () => {
                     style={[styles.text, styles.input, {textAlign: 'right'}]}
                     keyboardType='decimal-pad'
                     value={numOfServings}
-                    onChangeText={value => setNumOfServings(value)}
+                    onChangeText={value => validateServingInput(value)}
                     placeholder={numOfServings + ''}/>
                     <Text style={styles.text}> Servings {calcualtedServing()}</Text>
                 </View>  
