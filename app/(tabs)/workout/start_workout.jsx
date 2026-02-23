@@ -123,7 +123,7 @@ const start_workout = () => {
         router.back()
     }   
 
-    const handleExerciseSelection = (exercise) => {
+    const handleExerciseSelection = (exercise, isNew) => {
         console.log('Selected: ' + exercise.name + 'id: ' + exercise.id);
 
         if (currentExerciseId === '') {
@@ -164,7 +164,13 @@ const start_workout = () => {
         // setCurrentSet((prevData) => ({...prevData, exerciseId: exercise.id}))
 
 
-        setModalVisible(!modalVisible)
+        //if check parameter to see if we need to close the modal on picking an existing exercise, or having the 
+        //modal stay closed when opening the create exercise modal
+        if (!isNew) {
+            setModalVisible(!modalVisible)
+        }
+
+        
     }
 
     const handleCompletedSet = () => {
@@ -396,7 +402,7 @@ const start_workout = () => {
     )}
 
     const renderExerciseList = ({ item }) => (
-        <TouchableOpacity onPress={() => handleExerciseSelection(item)}>
+        <TouchableOpacity onPress={() => handleExerciseSelection(item, false)}>
             <View style={styles.exerciseItem}>
                 <ThemeText>{item.name}</ThemeText>
             </View>
@@ -513,9 +519,14 @@ const start_workout = () => {
         console.log('exercise to add: ' + exerciseName);
         const result = await db.runAsync("INSERT INTO exercises (name) VALUES (?)", [newExercise]);
 
-        console.log(result);
+        //ID of inserted exercise
+        console.log(result.lastInsertRowId);
 
-        loadExercises();
+        handleExerciseSelection({id: result.lastInsertRowId, name: exerciseName}, true);
+
+        // setModalVisible(!modalVisible)
+
+        // loadExercises();
         
         
     }
@@ -642,7 +653,7 @@ const start_workout = () => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                 handleCreatingNewExercise()
                                 setNewExerciseModalVisible(!newExerciseModalVisible)
-                                setModalVisible(!modalVisible)
+                                // setModalVisible(!modalVisible)
                                 }}>
                             <Text style={styles.text}>Add</Text>
                         </Pressable>
