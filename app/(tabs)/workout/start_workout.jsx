@@ -16,6 +16,7 @@ const start_workout = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [newExerciseModalVisible, setNewExerciseModalVisible] = useState(false);
     const flatListRef = useRef(null);
+    const [workoutName, setWorkoutName] = useState('My Workout');
     const [currentWorkout, setCurrentWorkout] = useState({
         name: 'My Workout',
         start_time: new Date(Date.now()).toLocaleString('en-US', {
@@ -536,10 +537,16 @@ const start_workout = () => {
     <SafeAreaView style={styles.container}>
         <View style={styles.headingContainer}>
             {/* <Text style={styles.text} onPress={handleNameChange}>{currentWorkout.name}</Text> */}
-            <TextInput
+            {/* <TextInput
                 style={styles.text}
                 onChangeText={(value) => {setCurrentWorkout((prevData) => ({...prevData, name: value}))}}
                 value={currentWorkout.name}
+                maxLength={30}    
+                /> */}
+                <TextInput
+                style={styles.text}
+                onChangeText={(value) => setWorkoutName(value)}
+                value={workoutName}
                 maxLength={30}    
                 />
             {/* <ThemeText style={styles.text}>{currentWorkout.start_time}</ThemeText> */}
@@ -681,7 +688,8 @@ function createStyles(theme, colorScheme) {
     },
     text: {
       color: theme.text,
-      fontSize: 18
+      fontSize: 18,
+      width: '75%'
     },
     input: {
         height: 40,
@@ -708,9 +716,9 @@ function createStyles(theme, colorScheme) {
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 10,
-        width: '100%',
-        maxWidth: 1024,
-        alignItems: 'center'
+        // width: '100%',
+        // maxWidth: 1024,
+        // alignItems: 'center'
     },
     metricsContainer: {
         flexDirection: 'row',
