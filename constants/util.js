@@ -29,3 +29,39 @@ export function convertTimes (end_time, start_time) {
     const time = (spliceTime(end_time) - spliceTime(start_time)) * 1000;
     return new Date(time).toISOString().substring(14, 19)
 }
+
+export function formatDateRangeFromToday(range) {
+  console.log(range);
+  const today = new Date();
+  const startDate = new Date(today);
+  const endDate = new Date(today);
+
+  switch (range) {
+    case '1M':
+      startDate.setMonth(startDate.getMonth() - 1);
+      break;
+    case '3M':
+      startDate.setMonth(startDate.getMonth() - 3);
+      break;
+    case '6M':
+      startDate.setMonth(startDate.getMonth() - 6);
+      break;
+    case '1Y':
+      startDate.setFullYear(startDate.getFullYear() - 1);
+      break;
+    case 'ALL':
+      startDate.setFullYear(2000); // Arbitrary start date for "All"
+      break;
+    default:
+      break;
+  }
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const formatLocalYYYYMMDD = (d) =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+  return {
+    startDate: formatLocalYYYYMMDD(startDate),
+    today: formatLocalYYYYMMDD(endDate),
+  }
+}

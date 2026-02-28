@@ -461,7 +461,14 @@ export function getWorkoutIndexPageData() {
   `
 }
 
-
+export function getWeightByFilter(filter) {
+  return `
+    SELECT id, body_weight, unit_of_measure, date
+    FROM weight
+    WHERE date BETWEEN '${filter.startDate}' AND DATE('now')
+    ORDER BY date DESC;
+  `
+}
 
 // CREATE TABLE IF NOT EXISTS WorkoutExercises (
     //     workout_id INTEGE

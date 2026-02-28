@@ -1,12 +1,14 @@
 import { ThemeContext } from '@/context/ThemeContext';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { React, useCallback, useContext, useState } from 'react';
+import { React, useCallback, useContext, useState, useEffect } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LineChart } from "react-native-gifted-charts";
+import { MaterialIcons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getMaxWeight, getMinWeight } from '@/db/dbstatments';
+import { getMaxWeight, getMinWeight, getWeightByFilter } from '@/db/dbstatments';
+import { formatDateRangeFromToday } from '@/constants/util';
 
 
 // import { Image } from 'expo-image';
@@ -26,6 +28,8 @@ export default function HomeScreen() {
   const [minWeight, setMinWeight] = useState(100);
   const [entries, setEntries] = useState([]);
   const [lineData, setLineData] = useState([]);
+  const [showTimeFilter, setShowTimeFilter] = useState(false);
+  const [timeFilter, setTimeFilter] = useState('ALL'); // UI-only selected range: '1M','3M','6M','1Y','ALL'
   const router = useRouter();
 
   const insets = useSafeAreaInsets();
@@ -39,24 +43,31 @@ export default function HomeScreen() {
 
 
   // useEffect(() => {
-  //   loadWeightHistory();
+  //   loadWeightHistory(timeFilter);
   // }, [])    
 
   useFocusEffect(
         useCallback(() => {
-          loadWeightHistory();
+          loadWeightHistory(timeFilter);
+          setTimeFilter('ALL');
         }, [])
       )
 
-  const loadWeightHistory = async () => {
+  const loadWeightHistory = async (filter) => {
     let dataArray = [];
-    // await db.runAsync('INSERT INTO weight (body_weight, unit_of_measure, date) VALUES (?,?,?)',
-    //     [297.7, 'lbs', new Date() + '']);    
     const result = await db.getAllAsync('SELECT id, body_weight, unit_of_measure, date FROM weight ORDER BY date DESC');
-    console.log(result);
+    // const result = await db.getAllAsync(getWeightByFilter(formatDateRangeFromToday(filter)));
+    // console.log(result);
+
+    const test = await db.getAllAsync(getWeightByFilter(formatDateRangeFromToday(filter)));
+
+    console.log(test);
+    
+    console.log(formatDateRangeFromToday(timeFilter));
+    
    
     result.map(item => {
-      console.log(item.body_weight);
+      // console.log(item.body_weight);
 
       const date = new Date(item.date);
 
@@ -92,6 +103,7 @@ export default function HomeScreen() {
         console.error(e);
       }
     }
+    
 
   const renderListItem = ({ item }) => (
         
@@ -128,12 +140,49 @@ export default function HomeScreen() {
                     
                 </View>
                 <View style={styles.chartContainer}>
+                  <View style={styles.filterContainer}>
+                    <Pressable
+                      style={styles.filterButton}
+                      onPress={() => setShowTimeFilter(prev => !prev)}
+                      hitSlop={8}
+                      accessibilityLabel="Open time filter"
+                      >
+                      <Text style={styles.text}>{timeFilter === 'ALL' ? 'All' : timeFilter}</Text>
+                      <MaterialIcons name="filter-list" size={22} color={theme.text} />
+                    </Pressable>
+                 {showTimeFilter && (
+                    <View style={styles.filterMenu}>
+                      {[
+                        { key: '1M', label: '1 Month' },
+                        { key: '3M', label: '3 Months' },
+                        { key: '6M', label: '6 Months' },
+                        { key: '1Y', label: '1 Year' },
+                        { key: 'ALL', label: 'All' },
+                      ].map(opt => (
+                        <TouchableOpacity
+                          key={opt.key}
+                          style={styles.filterOption}
+                          onPress={() => {
+                            setTimeFilter(opt.key);
+                            setShowTimeFilter(false);
+                            loadWeightHistory(opt.key);
+                            console.log('Selected time filter:', opt.key); // replace with your DB loader
+                          }}
+                        >
+                          <Text style={styles.text}>{opt.label}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                 )}
+               </View>
                   <Text>
                     <LineChart
                       maxValue={maxWeight - minWeight + 50}
                       yAxisOffset={minWeight - 25}
                       formatYLabel={(value) => `${Math.round(value)}`} //make y axis values whole numbers
                       width={Dimensions.get('window').width - 70}
+                      // disableScroll={true}
+                      // spacing={20}
                       rulesColor="gray"
                       rulesType="solid"
                       noOfSections={2}
@@ -145,9 +194,10 @@ export default function HomeScreen() {
                       color={'purple'}
                       thickness={3}
                       dataPointsColor={'red'}
-                      data={lineData}/>;
+                      data={lineData}/>
                   </Text>    
                 </View>
+              
                 <Animated.FlatList
                   data={entries}
                   renderItem={renderListItem}
@@ -169,8 +219,9 @@ function createStyles(theme, colorScheme) {
       color: 'white'
     },
     chartContainer: {
+      // width: '100%',
       backgroundColor: theme.background,
-      paddingEnd: 10
+      // paddingEnd: 10
     },
     text: {
       color: theme.text
@@ -221,6 +272,46 @@ function createStyles(theme, colorScheme) {
       fontSize: 14,
       fontFamily: 'Inter_500Medium',
       color: theme.text,
-    }
+    },
+
+
+
+
+
+    filterContainer: {
+     width: '100%',
+     maxWidth: 1024,
+     marginHorizontal: 'auto',
+     alignItems: 'flex-end',
+     paddingHorizontal: 20,
+     position: 'relative',
+   },
+   filterButton: {
+     padding: 8,
+     borderRadius: 8,
+     backgroundColor: 'transparent',
+     alignItems: 'center',
+     justifyContent: 'center',
+   },
+   filterMenu: {
+     position: 'absolute',
+     top: 44,
+     right: 20,
+     backgroundColor: theme.background,
+     borderRadius: 8,
+     paddingVertical: 6,
+     paddingHorizontal: 8,
+     shadowColor: '#000',
+     shadowOffset: { width: 0, height: 2 },
+     shadowOpacity: 0.15,
+     shadowRadius: 4,
+     elevation: 5,
+     zIndex: 50,
+  },
+   filterOption: {
+     paddingVertical: 8,
+     paddingHorizontal: 12,
+     minWidth: 120,
+   },
   })
 }
