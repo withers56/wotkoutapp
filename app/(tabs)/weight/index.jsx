@@ -7,7 +7,7 @@ import { LineChart } from "react-native-gifted-charts";
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getMaxWeight, getMinWeight, getWeightByFilter } from '@/db/dbstatments';
+import { getMaxWeight, getMinWeight, getWeightByFilter, getAllWeight } from '@/db/dbstatments';
 import { formatDateRangeFromToday } from '@/constants/util';
 
 
@@ -48,22 +48,33 @@ export default function HomeScreen() {
 
   useFocusEffect(
         useCallback(() => {
-          loadWeightHistory(timeFilter);
           setTimeFilter('ALL');
+          loadWeightHistory(timeFilter);
         }, [])
       )
 
   const loadWeightHistory = async (filter) => {
     let dataArray = [];
-    const result = await db.getAllAsync('SELECT id, body_weight, unit_of_measure, date FROM weight ORDER BY date DESC');
-    // const result = await db.getAllAsync(getWeightByFilter(formatDateRangeFromToday(filter)));
-    // console.log(result);
+    let result = [];
 
-    const test = await db.getAllAsync(getWeightByFilter(formatDateRangeFromToday(filter)));
-
-    console.log(test);
+    if (filter === 'ALL') {
+      result = await db.getAllAsync(getAllWeight());
+      console.log('in if');
+      
+    } else {
+      result = await db.getAllAsync(getWeightByFilter(formatDateRangeFromToday(filter)));
+      console.log('in else');
     
-    console.log(formatDateRangeFromToday(timeFilter));
+    }
+
+    // const result = await db.getAllAsync(getWeightByFilter(formatDateRangeFromToday(filter)));
+    console.log(result);
+
+    // const test = await db.getAllAsync(getWeightByFilter(formatDateRangeFromToday(filter)));
+
+    // console.log(test);
+    
+    console.log(formatDateRangeFromToday(filter));
     
    
     result.map(item => {
@@ -98,7 +109,7 @@ export default function HomeScreen() {
   const handleDelete = async (id) => {
       try {
         await db.runAsync("DELETE FROM weight WHERE id = ?;", [id]);
-        loadWeightHistory()
+        loadWeightHistory(timeFilter)
       } catch (e) {
         console.error(e);
       }

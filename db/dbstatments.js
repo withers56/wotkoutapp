@@ -465,7 +465,15 @@ export function getWeightByFilter(filter) {
   return `
     SELECT id, body_weight, unit_of_measure, date
     FROM weight
-    WHERE date BETWEEN '${filter.startDate}' AND DATE('now')
+    WHERE date >= '${filter.startDate}'
+    ORDER BY date DESC;
+  `
+}
+
+export function getAllWeight() {
+  return `
+    SELECT id, body_weight, unit_of_measure, date
+    FROM weight
     ORDER BY date DESC;
   `
 }
